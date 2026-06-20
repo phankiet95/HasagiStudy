@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-leaf-950 via-leaf-900 to-leaf-950 flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
+  <div class="min-h-screen green-background  flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
 
     <!-- Background blobs -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
@@ -20,18 +20,16 @@
               {{ store.orgName?.[0]?.toUpperCase() }}
             </span>
           </div>
-          <!-- Online indicator dot -->
-          <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-white/20 shadow-md" />
         </div>
 
-        <p class="text-leaf-300/80 text-[11px] font-semibold tracking-[0.18em] uppercase mb-1">Học viên</p>
-        <h2 class="text-white font-bold text-xl text-center leading-snug">{{ store.orgName }}</h2>
+        <p class="green-primary text-[11px] font-semibold tracking-[0.18em] uppercase mb-1">Học viên</p>
+        <h2 class="green-primary font-bold text-2xl text-center leading-snug">{{ store.orgName }}</h2>
       </div>
 
       <!-- Login card -->
-      <div class="bg-white rounded-3xl shadow-2xl shadow-black/40 overflow-hidden">
+      <div class="bg-white rounded-3xl shadow-s shadow-black/40 overflow-hidden">
         <!-- Card top accent -->
-        <div class="h-1 bg-gradient-to-r from-leaf-500 via-leaf-500 to-pink-500" />
+        <div class="h-1 bg-gradient-to-r from-leaf-500 via-leaf-500 to-leaf-800" />
 
         <div class="p-7">
           <h1 class="text-lg font-bold text-gray-900 mb-0.5">Đăng nhập</h1>
@@ -111,7 +109,7 @@
             <button
               @click="handleLogin"
               :disabled="loading || !username.trim() || !password"
-              class="w-full py-3.5 bg-gradient-to-r from-leaf-500 to-leaf-600 text-white font-semibold rounded-xl text-sm hover:from-leaf-700 hover:to-leaf-700 active:scale-[0.98] transition-all shadow-lg shadow-leaf-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2 mt-1"
+              class="w-full py-3.5 dark-green-button font-semibold rounded-xl text-sm hover:from-leaf-700 hover:to-leaf-700 active:scale-[0.98] transition-all shadow-lg shadow-leaf-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2 mt-1"
             >
               <svg v-if="loading" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -128,17 +126,17 @@
 
       <!-- Change org -->
       <div class="flex items-center justify-center mt-6 gap-1.5">
-        <span class="text-white/40 text-xs">Không phải tổ chức của bạn?</span>
+        <span class="green-primary text-sm">Không phải tổ chức của bạn?</span>
         <button
           @click="navigateTo('/connect')"
-          class="text-leaf-300 hover:text-white text-xs font-semibold transition-colors"
+          class="text-leaf-300 hover:text-white text-sm font-semibold transition-colors"
         >
           Đổi tổ chức
         </button>
       </div>
 
       <!-- Branding -->
-      <p class="text-center text-white/20 text-[10px] mt-8 tracking-wider">Powered by HasagiAI</p>
+      <p class="text-center green-primary text-[10px] mt-8 tracking-wider">Powered by HasagiAI</p>
     </div>
   </div>
 </template>

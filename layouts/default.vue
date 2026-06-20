@@ -18,7 +18,7 @@
         <svg v-else class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
           <path d="M11.25 4.533A9.707 9.707 0 006 3a9.735 9.735 0 00-3.25.555.75.75 0 00-.5.707v14.25a.75.75 0 001 .707A8.237 8.237 0 016 18.75c1.995 0 3.823.707 5.25 1.886V4.533zM12.75 20.636A8.214 8.214 0 0118 18.75c.966 0 1.89.166 2.75.47a.75.75 0 001-.708V4.262a.75.75 0 00-.5-.707A9.735 9.735 0 0018 3a9.707 9.707 0 00-5.25 1.533v16.103z" />
         </svg>
-        <span class="text-xs font-medium">Khóa học</span>
+        <span class="text-sm font-medium">Khóa học</span>
         <div v-if="isCourses" class="w-1 h-1 rounded-full bg-leaf-500 mt-0.5" />
       </NuxtLink>
 
@@ -32,7 +32,7 @@
         <svg v-else class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
           <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clip-rule="evenodd" />
         </svg>
-        <span class="text-xs font-medium">Hồ sơ</span>
+        <span class="text-sm font-medium">Hồ sơ</span>
         <div v-if="isSettings" class="w-1 h-1 rounded-full bg-leaf-500 mt-0.5" />
       </NuxtLink>
     </nav>

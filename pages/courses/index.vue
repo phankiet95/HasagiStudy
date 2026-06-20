@@ -21,11 +21,6 @@
             <p class="text-xs text-gray-500">{{ store.orgName }}</p>
             <p class="font-semibold text-gray-900 text-base">Xin chào, {{ store.student?.fullName }} 👋</p>
           </div>
-          <!-- Avatar -->
-          <div class="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-leaf-400 to-leaf-400 flex items-center justify-center flex-shrink-0">
-            <img v-if="store.student?.avatarUrl" :src="store.student.avatarUrl" class="w-full h-full object-cover" />
-            <span v-else class="font-bold text-white text-sm">{{ store.student?.fullName?.[0]?.toUpperCase() }}</span>
-          </div>
         </div>
 
         <!-- Stats row -->
@@ -70,7 +65,7 @@
             class="group bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col active:scale-[0.98] transition-transform"
           >
             <!-- Cover image -->
-            <div class="relative h-40 bg-gradient-to-br from-leaf-100 to-leaf-100 overflow-hidden flex-shrink-0">
+            <div class="relative h-40 green-background overflow-hidden flex-shrink-0">
               <img v-if="course.coverUrl" :src="course.coverUrl" class="w-full h-full object-contain" />
               <div v-else class="w-full h-full flex items-center justify-center">
                 <svg class="w-12 h-12 text-leaf-200" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
@@ -110,7 +105,7 @@
 
               <!-- Progress -->
               <div class="mt-3 pt-3 border-t border-gray-50">
-                <div class="flex justify-between text-xs text-gray-400 mb-1.5">
+                <div class="flex justify-between text-sm text-gray-400 mb-1.5">
                   <span>{{ course.completedLessons }}/{{ course.totalLessons }} bài học</span>
                   <span class="font-semibold" :class="progressPercent(course) === 100 ? 'text-green-500' : 'text-leaf-500'">
                     {{ progressPercent(course) }}%
@@ -125,10 +120,10 @@
 
               <!-- CTA button -->
               <div class="mt-3">
-                <span class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm"
+                <span class="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold transition-all shadow-sm"
                   :class="progressPercent(course) === 100
                     ? 'bg-green-50 text-green-600 border border-green-200'
-                    : 'bg-gradient-to-r from-leaf-500 to-leaf-600 text-white shadow-leaf-200'">
+                    : 'dark-green-button'">
                   <svg v-if="progressPercent(course) === 100" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

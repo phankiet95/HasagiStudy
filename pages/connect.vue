@@ -1,21 +1,21 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-leaf-950 via-leaf-900 to-leaf-950 flex flex-col items-center justify-center px-6 py-12">
+  <div class="min-h-screen green-background flex flex-col items-center justify-center px-6 py-12">
 
     <!-- Logo & Title -->
     <div class="flex flex-col items-center mb-10">
-      <div class="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 shadow-xl">
-        <span class="text-4xl font-black text-white">H</span>
+      <div class="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 shadow-xl overflow-hidden">
+        <img src="/icons/favicon.png" class="w-full h-full object-contain p-2" />
       </div>
-      <h1 class="text-3xl font-bold text-white">Hasagi Study</h1>
-      <p class="text-leaf-200 text-base mt-1">Kết nối với tổ chức của bạn</p>
+      <h1 class="text-3xl font-bold green-primary">Hasagi Study</h1>
+      <p class="green-second text-base mt-1">Kết nối với tổ chức của bạn</p>
     </div>
 
     <!-- Input card -->
-    <div class="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6">
+    <div class="w-full max-w-sm bg-white rounded-3xl shadow-s p-6">
 
       <template v-if="!orgFound">
-        <h2 class="text-lg font-bold text-gray-900 mb-1">Nhập slug tổ chức</h2>
-        <p class="text-gray-500 text-sm mb-5">Nhập mã slug từ giáo viên hoặc admin của bạn</p>
+        <h2 class="text-lg font-bold text-gray-900 mb-1">Nhập ID tổ chức</h2>
+        <p class="text-gray-500 text-sm mb-5">Nhập mã ID từ giáo viên hoặc admin của bạn</p>
 
         <div class="relative mb-4">
           <input
@@ -32,7 +32,7 @@
         <button
           @click="connectOrg"
           :disabled="connecting || !slugInput.trim()"
-          class="w-full py-3.5 bg-gradient-to-r from-leaf-500 to-leaf-600 text-white font-semibold rounded-xl text-base hover:from-leaf-700 hover:to-leaf-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          class="w-full py-3.5 dark-green-button font-semibold rounded-xl text-base hover:from-leaf-700 hover:to-leaf-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <svg v-if="connecting" class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -72,7 +72,7 @@
 
         <button
           @click="confirmOrg"
-          class="w-full py-3.5 bg-gradient-to-r from-leaf-500 to-leaf-600 text-white font-semibold rounded-xl text-base hover:from-leaf-700 hover:to-leaf-700 transition-all shadow-md mb-3"
+          class="w-full py-3.5 dark-green-button text-white font-semibold rounded-xl text-base hover:from-leaf-700 hover:to-leaf-700 transition-all shadow-md mb-3"
         >
           Tiếp tục đăng nhập
         </button>
@@ -80,7 +80,7 @@
           @click="resetForm"
           class="w-full py-3 text-gray-500 font-medium text-sm hover:text-gray-700 transition-colors"
         >
-          Nhập slug khác
+          Nhập ID tổ chức khác
         </button>
       </template>
     </div>
