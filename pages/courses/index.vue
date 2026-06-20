@@ -19,7 +19,7 @@
           </div>
           <div class="flex-1 min-w-0">
             <p class="text-xs text-gray-500">{{ store.orgName }}</p>
-            <p class="font-semibold text-gray-900 text-base">Xin chào, {{ firstName }} 👋</p>
+            <p class="font-semibold text-gray-900 text-base">Xin chào, {{ store.student?.fullName }} 👋</p>
           </div>
           <!-- Avatar -->
           <div class="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-indigo-400 to-purple-400 flex items-center justify-center flex-shrink-0">
@@ -62,7 +62,7 @@
         </div>
 
         <!-- Course cards -->
-        <div v-else class="space-y-4">
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           <NuxtLink
             v-for="course in courses"
             :key="course.id"
@@ -125,12 +125,10 @@
 
               <!-- CTA button -->
               <div class="mt-3">
-                <span class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold transition-colors"
+                <span class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold transition-all shadow-sm"
                   :class="progressPercent(course) === 100
-                    ? 'bg-green-50 text-green-600'
-                    : progressPercent(course) > 0
-                      ? 'bg-indigo-600 text-white'
-                      : 'bg-indigo-50 text-indigo-600'">
+                    ? 'bg-green-50 text-green-600 border border-green-200'
+                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-indigo-200'">
                   <svg v-if="progressPercent(course) === 100" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.964-7.178z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -168,21 +166,23 @@ onMounted(async () => {
   if (!store.orgSlug) return navigateTo('/connect')
   if (!store.sessionToken) return navigateTo('/login')
 
-  const student = await validateSession(store.sessionToken)
-  if (!student) {
-    store.clearSession()
-    return navigateTo('/login')
-  }
-  store.student = student
-
   try {
+    const student = await validateSession(store.sessionToken)
+    if (!student) {
+      store.clearSession()
+      return navigateTo('/login')
+    }
+    store.student = student
+
     const { courses: data } = await $fetch('/api/lms/student-courses', {
       headers: { 'x-lms-session': store.sessionToken },
     })
     courses.value = data
   } catch {
+    // Network error — keep session, show empty list
     courses.value = []
+  } finally {
+    loading.value = false
   }
-  loading.value = false
 })
 </script>

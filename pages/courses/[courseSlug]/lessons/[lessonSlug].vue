@@ -51,6 +51,14 @@
         </div>
 
         <div class="flex items-center gap-2 flex-shrink-0">
+          <!-- Offline badge -->
+          <div v-if="isOfflineMode" class="flex items-center gap-1 px-2 py-1 bg-amber-500/20 text-amber-400 text-xs font-semibold rounded-full border border-amber-500/30">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M8.111 8.111A3 3 0 0012 15a3 3 0 003-3 3 3 0 00-.111-.889M21 12a9 9 0 01-9 9m-6.343-2.657A9 9 0 013 12c0-2.48 1.007-4.729 2.636-6.364" />
+            </svg>
+            Offline
+          </div>
+
           <!-- Timer -->
           <div v-if="showQuizPanel && quizPhase === 'taking' && quizTimeLimitMinutes" :class="[
             'flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-bold transition-all',
@@ -145,6 +153,52 @@
             <div class="flex-1 px-4 sm:px-8 py-6 max-w-3xl w-full">
               <h1 class="text-xl sm:text-2xl font-bold text-gray-900 mb-5 leading-snug">{{ lesson.title }}</h1>
               <div class="prose prose-gray prose-sm max-w-none lesson-content" v-html="lesson.content" />
+            </div>
+
+            <!-- Mindmap section -->
+            <div v-if="lesson.metadata?.mindmaps?.length" class="border-t border-gray-100">
+              <!-- Section header -->
+              <div class="px-4 sm:px-8 py-4 flex items-center gap-2">
+                <div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+                  </svg>
+                </div>
+                <h2 class="text-sm font-bold text-gray-800">Mindmap hỗ trợ học tập</h2>
+                <span class="text-xs bg-indigo-50 text-indigo-600 font-semibold px-2 py-0.5 rounded-full">{{ lesson.metadata.mindmaps.length }}</span>
+              </div>
+
+              <!-- Cards -->
+              <div class="space-y-4 px-4 sm:px-8 pb-6">
+                <div
+                  v-for="(mm, idx) in lesson.metadata.mindmaps"
+                  :key="mm.id || idx"
+                  class="rounded-2xl border border-gray-200 overflow-hidden shadow-sm bg-white"
+                >
+                  <!-- Card header (toggle collapse) -->
+                  <button
+                    @click="toggleMindmap(idx)"
+                    class="w-full flex items-center justify-between gap-3 px-4 py-3 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-indigo-100/60 active:opacity-80 transition-opacity"
+                  >
+                    <div class="flex items-center gap-2 min-w-0">
+                      <span class="w-5 h-5 flex-shrink-0 bg-indigo-500 rounded text-white text-[10px] font-bold flex items-center justify-center">{{ idx + 1 }}</span>
+                      <span class="text-sm font-semibold text-indigo-800 truncate">{{ mm.title || mm.treeData?.name || `Mindmap ${idx + 1}` }}</span>
+                    </div>
+                    <svg
+                      class="w-4 h-4 text-indigo-400 flex-shrink-0 transition-transform duration-200"
+                      :style="{ transform: collapsedMindmaps.has(idx) ? 'rotate(-90deg)' : 'rotate(0deg)' }"
+                      fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  <!-- Tree -->
+                  <div v-if="!collapsedMindmaps.has(idx)" class="px-4 pt-4 pb-5">
+                    <MindmapTree :treeData="mm.treeData" />
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Documents -->
@@ -611,10 +665,23 @@ definePageMeta({ layout: 'blank' })
 
 import { useStudyStore } from '~/composables/useStudyStore'
 import { useLmsStudent } from '~/composables/useLmsStudent'
+import { useOfflineLesson, withTimeout } from '~/composables/useOfflineLesson'
 
 const store = useStudyStore()
 const { validateSession } = useLmsStudent()
+const { getOfflineLesson, getOfflineObjectUrls, applyObjectUrls } = useOfflineLesson()
 const route = useRoute()
+
+const isOfflineMode = ref(false)
+let objectUrlMap = new Map()
+
+// Mindmap collapse state (all expanded by default)
+const collapsedMindmaps = ref(new Set())
+const toggleMindmap = (idx) => {
+  const s = new Set(collapsedMindmaps.value)
+  s.has(idx) ? s.delete(idx) : s.add(idx)
+  collapsedMindmaps.value = s
+}
 
 // State
 const lesson = ref(null)
@@ -788,22 +855,41 @@ onMounted(async () => {
   if (!store.orgSlug) return navigateTo('/connect')
   if (!store.sessionToken) return navigateTo('/login')
 
+  if (!navigator.onLine) {
+    const key = `${store.orgSlug}/${route.params.courseSlug}/${route.params.lessonSlug}`
+    const offlineData = await getOfflineLesson(key)
+    if (offlineData) {
+      objectUrlMap = await getOfflineObjectUrls(key)
+      const data = applyObjectUrls(offlineData, objectUrlMap)
+      lesson.value = data.lesson
+      courseName.value = data.course?.title || ''
+      chapters.value = data.chapters || []
+      allLessons.value = data.allLessons || []
+      isOfflineMode.value = true
+    }
+    loading.value = false
+    return
+  }
+
   try {
-    const validStudent = await validateSession(store.sessionToken)
+    const validStudent = await withTimeout(validateSession(store.sessionToken), 5000)
     if (!validStudent) {
       store.clearSession()
       return navigateTo('/login')
     }
     store.student = validStudent
 
-    const { lesson: lessonData, course: courseData, allLessons: lessonsData, chapters: chaptersData } = await $fetch('/api/lms/lesson-detail', {
-      query: {
-        orgSlug: store.orgSlug,
-        courseSlug: route.params.courseSlug,
-        lessonSlug: route.params.lessonSlug,
-      },
-      headers: { 'x-lms-session': store.sessionToken },
-    })
+    const { lesson: lessonData, course: courseData, allLessons: lessonsData, chapters: chaptersData } = await withTimeout(
+      $fetch('/api/lms/lesson-detail', {
+        query: {
+          orgSlug: store.orgSlug,
+          courseSlug: route.params.courseSlug,
+          lessonSlug: route.params.lessonSlug,
+        },
+        headers: { 'x-lms-session': store.sessionToken },
+      }),
+      8000,
+    )
 
     lesson.value = lessonData
     courseName.value = courseData?.title || ''
@@ -827,14 +913,34 @@ onMounted(async () => {
       lastQuizAttempt.value = attempt
     } catch {}
   } catch (e) {
-    console.error('[LessonDetail] Failed to load:', e)
-    lesson.value = null
+    const isNetworkErr = (e?.message === 'network-timeout') || !navigator.onLine
+    if (isNetworkErr) {
+      const key = `${store.orgSlug}/${route.params.courseSlug}/${route.params.lessonSlug}`
+      const offlineData = await getOfflineLesson(key)
+      if (offlineData) {
+        objectUrlMap = await getOfflineObjectUrls(key)
+        const data = applyObjectUrls(offlineData, objectUrlMap)
+        lesson.value = data.lesson
+        courseName.value = data.course?.title || ''
+        chapters.value = data.chapters || []
+        allLessons.value = data.allLessons || []
+        isOfflineMode.value = true
+      } else {
+        lesson.value = null
+      }
+    } else {
+      console.error('[LessonDetail] Failed to load:', e)
+      lesson.value = null
+    }
   } finally {
     loading.value = false
   }
 })
 
-onBeforeUnmount(() => { if (timerInterval) clearInterval(timerInterval) })
+onBeforeUnmount(() => {
+  if (timerInterval) clearInterval(timerInterval)
+  for (const objUrl of objectUrlMap.values()) URL.revokeObjectURL(objUrl)
+})
 
 const currentIndex = computed(() => allLessons.value.findIndex(l => l.slug === route.params.lessonSlug))
 const prevLesson = computed(() => currentIndex.value > 0 ? allLessons.value[currentIndex.value - 1] : null)

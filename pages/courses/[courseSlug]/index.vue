@@ -112,6 +112,15 @@
         </div>
       </div>
 
+      <!-- Offline banner -->
+      <div v-if="isOfflineMode" class="mx-4 mt-4 flex items-center gap-2 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 text-sm">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M8.111 8.111A3 3 0 0012 15a3 3 0 003-3 3 3 0 00-.111-.889M21 12a9 9 0 01-9 9m-6.343-2.657A9 9 0 013 12c0-2.48 1.007-4.729 2.636-6.364" />
+        </svg>
+        <span class="font-medium">Đang xem offline</span>
+        <span class="text-amber-500 text-xs">— Tiến độ sẽ đồng bộ khi có kết nối</span>
+      </div>
+
       <!-- Chapter / lesson list -->
       <div class="px-4 py-4">
         <h2 class="text-base font-bold text-gray-900 mb-3">
@@ -178,6 +187,36 @@
                     </div>
                     <p class="text-xs text-gray-400 mt-0.5">Bài {{ lIdx + 1 }}</p>
                   </div>
+
+                  <!-- Download button -->
+                  <button @click.prevent="handleDownload(lesson)"
+                    class="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg transition-colors"
+                    :class="dlState(lesson.slug).status === 'done' ? 'text-indigo-500 hover:bg-indigo-50' : 'text-gray-400 hover:bg-gray-100'"
+                    :title="dlState(lesson.slug).status === 'done' ? 'Đã tải — nhấn để xóa' : 'Tải trước bài học'"
+                  >
+                    <!-- Idle: cloud download -->
+                    <svg v-if="dlState(lesson.slug).status === 'idle'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 8l-3-3m3 3l3-3M4.5 19.5h15a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902-.11-1.342 0L10.35 15.68c-.44.11-.902.11-1.342 0L4.585 14.573A1.124 1.124 0 013.75 13.5V6.75A2.25 2.25 0 016 4.5h12a2.25 2.25 0 012.25 2.25v6.75c0 .516-.351.966-.852 1.091" />
+                    </svg>
+                    <!-- Downloading: spinner with % -->
+                    <div v-else-if="dlState(lesson.slug).status === 'downloading'" class="relative w-5 h-5">
+                      <svg class="animate-spin w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
+                        <path class="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                      </svg>
+                      <span class="absolute inset-0 flex items-center justify-center text-[7px] font-bold text-indigo-600">
+                        {{ dlState(lesson.slug).progress }}
+                      </span>
+                    </div>
+                    <!-- Done: checkmark -->
+                    <svg v-else-if="dlState(lesson.slug).status === 'done'" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                    </svg>
+                    <!-- Error: warning -->
+                    <svg v-else class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                  </button>
                 </div>
 
                 <!-- Sub-links -->
@@ -231,10 +270,12 @@
 <script setup>
 import { useStudyStore } from '~/composables/useStudyStore'
 import { useLmsStudent } from '~/composables/useLmsStudent'
+import { useOfflineLesson, withTimeout } from '~/composables/useOfflineLesson'
 
 const store = useStudyStore()
 const { validateSession } = useLmsStudent()
 const route = useRoute()
+const { downloadStates, downloadLesson, deleteOfflineLesson, initDownloadStates, getOfflineCourseData } = useOfflineLesson()
 
 const course = ref(null)
 const chapters = ref([])
@@ -243,13 +284,39 @@ const passedQuizIds = ref(new Set())
 const loading = ref(true)
 const error = ref('')
 const openChapters = reactive(new Set())
+const isOfflineMode = ref(false)
+
+const loadOfflineCourse = async () => {
+  const courseParam = route.params.courseSlug
+  const offlineData = await getOfflineCourseData(store.orgSlug, courseParam)
+  if (!offlineData) return false
+  course.value = offlineData.course
+  const lessonsById = {}
+  for (const l of offlineData.allLessons) {
+    if (!lessonsById[l.chapter_id]) lessonsById[l.chapter_id] = []
+    lessonsById[l.chapter_id].push(l)
+  }
+  chapters.value = offlineData.chapters.map(ch => ({ ...ch, lessons: lessonsById[ch.id] || [] }))
+  for (const ch of chapters.value) openChapters.add(ch.id)
+  initDownloadStates(store.orgSlug, courseParam, offlineData.allLessons.map(l => l.slug))
+  isOfflineMode.value = true
+  return true
+}
 
 onMounted(async () => {
   if (!store.orgSlug) return navigateTo('/connect')
   if (!store.sessionToken) return navigateTo('/login')
 
+  const isOffline = !navigator.onLine
+  if (isOffline) {
+    const loaded = await loadOfflineCourse()
+    if (!loaded) error.value = 'Không có kết nối mạng và chưa tải bài học nào cho khóa học này'
+    loading.value = false
+    return
+  }
+
   try {
-    const validStudent = await validateSession(store.sessionToken)
+    const validStudent = await withTimeout(validateSession(store.sessionToken), 5000)
     if (!validStudent) {
       store.clearSession()
       return navigateTo('/login')
@@ -257,10 +324,13 @@ onMounted(async () => {
     store.student = validStudent
 
     const courseParam = route.params.courseSlug
-    const { course: courseData, chapters: chaptersData, lessons: lessonsData } = await $fetch('/api/lms/course-detail', {
-      query: { orgSlug: store.orgSlug, courseSlug: courseParam },
-      headers: { 'x-lms-session': store.sessionToken },
-    })
+    const { course: courseData, chapters: chaptersData, lessons: lessonsData } = await withTimeout(
+      $fetch('/api/lms/course-detail', {
+        query: { orgSlug: store.orgSlug, courseSlug: courseParam },
+        headers: { 'x-lms-session': store.sessionToken },
+      }),
+      8000,
+    )
 
     course.value = courseData
 
@@ -272,10 +342,15 @@ onMounted(async () => {
     chapters.value = chaptersData.map(ch => ({ ...ch, lessons: lessonsById[ch.id] || [] }))
     for (const ch of chapters.value) openChapters.add(ch.id)
 
+    initDownloadStates(store.orgSlug, route.params.courseSlug, lessonsData.map(l => l.slug))
+
     try {
-      const { completedLessonIds, passedQuizLessonIds } = await $fetch('/api/lms/student-progress', {
-        headers: { 'x-lms-session': store.sessionToken },
-      })
+      const { completedLessonIds, passedQuizLessonIds } = await withTimeout(
+        $fetch('/api/lms/student-progress', {
+          headers: { 'x-lms-session': store.sessionToken },
+        }),
+        5000,
+      )
       completedIds.value = new Set(completedLessonIds)
       passedQuizIds.value = new Set(passedQuizLessonIds)
     } catch {
@@ -283,9 +358,18 @@ onMounted(async () => {
       passedQuizIds.value = new Set()
     }
   } catch (e) {
-    console.error('[CourseDetail] Failed to load:', e)
-    error.value = e?.data?.message || 'Có lỗi xảy ra khi tải khóa học'
-    course.value = null
+    const isNetworkErr = e?.message === 'network-timeout' || !navigator.onLine
+    if (isNetworkErr) {
+      const loaded = await loadOfflineCourse()
+      if (!loaded) {
+        error.value = 'Không có kết nối mạng và chưa tải bài học nào cho khóa học này'
+        course.value = null
+      }
+    } else {
+      console.error('[CourseDetail] Failed to load:', e)
+      error.value = e?.data?.message || 'Có lỗi xảy ra khi tải khóa học'
+      course.value = null
+    }
   } finally {
     loading.value = false
   }
@@ -303,4 +387,29 @@ const overallPercent = computed(() => totalLessons.value ? Math.round((completed
 const chapterCompletedCount = (ch) => ch.lessons.filter(l => completedIds.value.has(l.id)).length
 const chapterPercent = (ch) => ch.lessons.length ? Math.round((chapterCompletedCount(ch) / ch.lessons.length) * 100) : 0
 const nextLesson = computed(() => allLessons.value.find(l => !completedIds.value.has(l.id)) ?? null)
+
+const dlState = (lessonSlug) => downloadStates[lessonSlug] || { status: 'idle', progress: 0, downloaded: 0, total: 0 }
+
+const handleDownload = async (lesson) => {
+  const key = `${store.orgSlug}/${route.params.courseSlug}/${lesson.slug}`
+  const state = dlState(lesson.slug)
+  if (state.status === 'downloading') return
+
+  if (state.status === 'done') {
+    if (confirm(`Xóa bài "${lesson.title}" khỏi bộ nhớ offline?`)) {
+      await deleteOfflineLesson(key)
+    }
+    return
+  }
+
+  try {
+    await downloadLesson(
+      { orgSlug: store.orgSlug, courseSlug: route.params.courseSlug, lessonSlug: lesson.slug, sessionToken: store.sessionToken },
+      () => {},
+    )
+  } catch (e) {
+    const msg = downloadStates[lesson.slug]?.errorMessage || 'Tải thất bại'
+    alert(msg)
+  }
+}
 </script>
