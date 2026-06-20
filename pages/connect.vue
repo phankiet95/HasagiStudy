@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-800 flex flex-col items-center justify-center px-6 py-12">
+  <div class="min-h-screen bg-gradient-to-br from-leaf-950 via-leaf-900 to-leaf-950 flex flex-col items-center justify-center px-6 py-12">
 
     <!-- Logo & Title -->
     <div class="flex flex-col items-center mb-10">
@@ -7,7 +7,7 @@
         <span class="text-4xl font-black text-white">H</span>
       </div>
       <h1 class="text-3xl font-bold text-white">Hasagi Study</h1>
-      <p class="text-indigo-200 text-base mt-1">Kết nối với tổ chức của bạn</p>
+      <p class="text-leaf-200 text-base mt-1">Kết nối với tổ chức của bạn</p>
     </div>
 
     <!-- Input card -->
@@ -23,7 +23,7 @@
             type="text"
             placeholder="vd: truong-abc"
             @keyup.enter="connectOrg"
-            class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+            class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 text-base focus:outline-none focus:ring-2 focus:ring-leaf-500 focus:border-transparent transition-all"
           />
         </div>
 
@@ -32,7 +32,7 @@
         <button
           @click="connectOrg"
           :disabled="connecting || !slugInput.trim()"
-          class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl text-base hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          class="w-full py-3.5 bg-gradient-to-r from-leaf-500 to-leaf-600 text-white font-semibold rounded-xl text-base hover:from-leaf-700 hover:to-leaf-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <svg v-if="connecting" class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -56,13 +56,13 @@
       <!-- Org confirmation card -->
       <template v-else-if="orgData">
         <div class="flex flex-col items-center text-center mb-6">
-          <div class="w-20 h-20 rounded-2xl overflow-hidden bg-indigo-50 border border-indigo-100 mb-3 flex items-center justify-center flex-shrink-0">
+          <div class="w-20 h-20 rounded-2xl overflow-hidden bg-leaf-50 border border-leaf-100 mb-3 flex items-center justify-center flex-shrink-0">
             <img v-if="orgLogo" :src="orgLogo" class="w-full h-full object-contain" />
-            <span v-else class="text-3xl font-black text-indigo-400">{{ orgData.name?.[0]?.toUpperCase() }}</span>
+            <span v-else class="text-3xl font-black text-leaf-400">{{ orgData.name?.[0]?.toUpperCase() }}</span>
           </div>
           <h3 class="text-xl font-bold text-gray-900">{{ orgData.name }}</h3>
           <p v-if="orgData.description" class="text-gray-500 text-sm mt-1 line-clamp-2">{{ orgData.description }}</p>
-          <span class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+          <span class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-leaf-500 bg-leaf-50 px-3 py-1 rounded-full">
             <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/>
             </svg>
@@ -72,7 +72,7 @@
 
         <button
           @click="confirmOrg"
-          class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl text-base hover:from-indigo-700 hover:to-purple-700 transition-all shadow-md mb-3"
+          class="w-full py-3.5 bg-gradient-to-r from-leaf-500 to-leaf-600 text-white font-semibold rounded-xl text-base hover:from-leaf-700 hover:to-leaf-700 transition-all shadow-md mb-3"
         >
           Tiếp tục đăng nhập
         </button>

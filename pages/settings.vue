@@ -77,6 +77,28 @@
         </button>
       </div>
 
+      <!-- Install PWA -->
+      <div v-if="pwaInstallPrompt" class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+        <p class="px-5 pt-4 pb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Ứng dụng</p>
+        <button
+          @click="handleInstall"
+          class="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-leaf-50 transition-colors border-t border-gray-100"
+        >
+          <div class="w-9 h-9 rounded-xl bg-leaf-50 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-leaf-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+          </div>
+          <div class="flex-1">
+            <p class="font-semibold text-gray-700 text-base">Cài đặt ứng dụng</p>
+            <p class="text-xs text-gray-400 mt-0.5">Thêm vào màn hình chính để dùng offline</p>
+          </div>
+          <svg class="w-4 h-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </button>
+      </div>
+
       <!-- App version -->
       <p class="text-center text-xs text-gray-400 pt-2">Hasagi Study v1.0</p>
     </div>
@@ -87,6 +109,7 @@
 import { useStudyStore } from '~/composables/useStudyStore'
 
 const store = useStudyStore()
+const pwaInstallPrompt = useState('pwaInstallPrompt')
 
 const handleLogout = () => {
   store.clearSession()
@@ -96,5 +119,12 @@ const handleLogout = () => {
 const handleChangeOrg = () => {
   store.clearAll()
   navigateTo('/connect')
+}
+
+const handleInstall = async () => {
+  if (!pwaInstallPrompt.value) return
+  pwaInstallPrompt.value.prompt()
+  await pwaInstallPrompt.value.userChoice
+  pwaInstallPrompt.value = null
 }
 </script>
