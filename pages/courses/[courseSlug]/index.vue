@@ -4,7 +4,7 @@
     <!-- Loading -->
     <div v-if="loading" class="flex items-center justify-center min-h-[60vh]">
       <div class="flex flex-col items-center gap-4">
-        <svg class="animate-spin w-10 h-10 text-indigo-500" fill="none" viewBox="0 0 24 24">
+        <svg class="animate-spin w-10 h-10 text-leaf-500" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
         </svg>
@@ -21,7 +21,7 @@
       </div>
       <p class="text-gray-700 font-semibold text-lg">{{ error || 'Không tìm thấy khóa học' }}</p>
       <p class="text-gray-400 text-sm mt-1">Khóa học không tồn tại hoặc bạn không có quyền truy cập.</p>
-      <NuxtLink to="/courses" class="mt-5 inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-xl">
+      <NuxtLink to="/courses" class="mt-5 inline-flex items-center gap-2 px-4 py-2.5 bg-leaf-500 text-white text-sm font-semibold rounded-xl">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
         </svg>
@@ -36,7 +36,7 @@
         <div class="px-4 py-4">
           <!-- Back -->
           <NuxtLink to="/courses"
-            class="inline-flex items-center gap-1.5 text-gray-400 hover:text-indigo-600 text-sm mb-4 transition-colors">
+            class="inline-flex items-center gap-1.5 text-gray-400 hover:text-leaf-500 text-sm mb-4 transition-colors">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
             </svg>
@@ -44,10 +44,10 @@
           </NuxtLink>
 
           <!-- Cover image -->
-          <div class="w-full rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-100 to-purple-100 aspect-video mb-4">
+          <div class="w-full rounded-2xl overflow-hidden bg-gradient-to-br from-leaf-100 to-leaf-100 aspect-video mb-4">
             <img v-if="course.cover_url" :src="course.cover_url" class="w-full h-full object-contain" />
             <div v-else class="w-full h-full flex items-center justify-center">
-              <svg class="w-12 h-12 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
+              <svg class="w-12 h-12 text-leaf-300" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
               </svg>
             </div>
@@ -60,13 +60,13 @@
           <!-- Stats -->
           <div class="flex flex-wrap items-center gap-3 mb-4">
             <span class="flex items-center gap-1.5 text-sm text-gray-500">
-              <svg class="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <svg class="w-4 h-4 text-leaf-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776" />
               </svg>
               {{ chapters.length }} chương
             </span>
             <span class="flex items-center gap-1.5 text-sm text-gray-500">
-              <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <svg class="w-4 h-4 text-leaf-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
               </svg>
               {{ totalLessons }} bài học
@@ -83,10 +83,10 @@
           <div>
             <div class="flex items-center justify-between text-xs text-gray-400 mb-1.5">
               <span>Tiến độ học tập</span>
-              <span class="font-semibold text-indigo-600">{{ overallPercent }}%</span>
+              <span class="font-semibold text-leaf-500">{{ overallPercent }}%</span>
             </div>
             <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-700"
+              <div class="h-full bg-gradient-to-r from-leaf-500 to-leaf-500 rounded-full transition-all duration-700"
                 :style="{ width: overallPercent + '%' }" />
             </div>
           </div>
@@ -96,7 +96,7 @@
             <NuxtLink
               v-if="nextLesson"
               :to="`/courses/${route.params.courseSlug}/lessons/${nextLesson.slug || nextLesson.id}`"
-              class="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold text-sm rounded-xl transition-all shadow-md"
+              class="flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-leaf-500 to-leaf-600 text-white font-semibold text-sm rounded-xl transition-all shadow-md"
             >
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
               {{ completedCount === 0 ? 'Bắt đầu học' : 'Tiếp tục học' }}
@@ -137,8 +137,8 @@
               @click="toggleChapter(chapter.id)"
               class="w-full flex items-center gap-3 px-4 py-4 text-left hover:bg-gray-50 transition-colors"
             >
-              <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center flex-shrink-0">
-                <span class="text-xs font-bold text-indigo-600">{{ chIdx + 1 }}</span>
+              <div class="w-8 h-8 rounded-lg bg-leaf-50 flex items-center justify-center flex-shrink-0">
+                <span class="text-xs font-bold text-leaf-500">{{ chIdx + 1 }}</span>
               </div>
               <div class="flex-1 min-w-0">
                 <p class="font-semibold text-gray-900 text-sm leading-snug">{{ chapter.title }}</p>
@@ -149,7 +149,7 @@
               <!-- Mini progress -->
               <div class="flex items-center gap-2 flex-shrink-0">
                 <div class="w-12 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div class="h-full bg-indigo-400 rounded-full" :style="{ width: chapterPercent(chapter) + '%' }" />
+                  <div class="h-full bg-leaf-400 rounded-full" :style="{ width: chapterPercent(chapter) + '%' }" />
                 </div>
                 <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
                   :class="openChapters.has(chapter.id) ? 'rotate-180' : ''"
@@ -191,7 +191,7 @@
                   <!-- Download button -->
                   <button @click.prevent="handleDownload(lesson)"
                     class="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg transition-colors"
-                    :class="dlState(lesson.slug).status === 'done' ? 'text-indigo-500 hover:bg-indigo-50' : 'text-gray-400 hover:bg-gray-100'"
+                    :class="dlState(lesson.slug).status === 'done' ? 'text-leaf-500 hover:bg-leaf-50' : 'text-gray-400 hover:bg-gray-100'"
                     :title="dlState(lesson.slug).status === 'done' ? 'Đã tải — nhấn để xóa' : 'Tải trước bài học'"
                   >
                     <!-- Idle: cloud download -->
@@ -200,11 +200,11 @@
                     </svg>
                     <!-- Downloading: spinner with % -->
                     <div v-else-if="dlState(lesson.slug).status === 'downloading'" class="relative w-5 h-5">
-                      <svg class="animate-spin w-5 h-5 text-indigo-500" fill="none" viewBox="0 0 24 24">
+                      <svg class="animate-spin w-5 h-5 text-leaf-500" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
                         <path class="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
                       </svg>
-                      <span class="absolute inset-0 flex items-center justify-center text-[7px] font-bold text-indigo-600">
+                      <span class="absolute inset-0 flex items-center justify-center text-[7px] font-bold text-leaf-500">
                         {{ dlState(lesson.slug).progress }}
                       </span>
                     </div>

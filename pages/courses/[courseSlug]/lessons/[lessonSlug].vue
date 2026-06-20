@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-gray-950 flex flex-col">
+  <div class="min-h-screen bg-leaf-950 flex flex-col">
 
     <!-- Loading -->
     <div v-if="loading" class="flex-1 flex items-center justify-center">
       <div class="flex flex-col items-center gap-4">
-        <svg class="animate-spin w-10 h-10 text-indigo-400" fill="none" viewBox="0 0 24 24">
+        <svg class="animate-spin w-10 h-10 text-leaf-400" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
         </svg>
@@ -21,7 +21,7 @@
       </div>
       <p class="text-gray-200 font-semibold text-lg">Không tìm thấy bài học</p>
       <p class="text-gray-500 text-sm mt-1">Bài học không tồn tại hoặc bạn không có quyền truy cập.</p>
-      <NuxtLink :to="`/courses/${route.params.courseSlug}`" class="mt-5 inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-xl">
+      <NuxtLink :to="`/courses/${route.params.courseSlug}`" class="mt-5 inline-flex items-center gap-2 px-4 py-2.5 bg-leaf-500 text-white text-sm font-semibold rounded-xl">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
         </svg>
@@ -31,7 +31,7 @@
 
     <template v-else>
       <!-- Top bar -->
-      <div class="sticky top-0 z-20 bg-gray-900/95 backdrop-blur-md border-b border-gray-800 h-14 flex items-center px-4 gap-3 flex-shrink-0">
+      <div class="sticky top-0 z-20 bg-leaf-900/95 backdrop-blur-md border-b border-gray-800 h-14 flex items-center px-4 gap-3 flex-shrink-0">
         <NuxtLink
           :to="`/courses/${route.params.courseSlug}`"
           class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors group flex-shrink-0"
@@ -98,23 +98,23 @@
       </div>
 
       <!-- Tab switcher (Bài học / Bài tập) — shown when there is a quiz -->
-      <div v-if="hasQuiz" class="flex bg-gray-900 border-b border-gray-800 flex-shrink-0">
+      <div v-if="hasQuiz" class="flex bg-leaf-900 border-b border-gray-800 flex-shrink-0">
         <button
           v-if="!isExamLesson"
           @click="navigateTo({ query: {} })"
           class="flex-1 py-3 text-sm font-semibold transition-colors border-b-2"
-          :class="!showQuizPanel ? 'text-white border-indigo-500' : 'text-gray-500 border-transparent hover:text-gray-300'"
+          :class="!showQuizPanel ? 'text-white border-leaf-500' : 'text-gray-500 border-transparent hover:text-gray-300'"
         >
           Bài Học
         </button>
         <button
           @click="navigateTo({ query: { tab: 'quiz' } })"
           class="flex-1 py-3 text-sm font-semibold transition-colors border-b-2"
-          :class="showQuizPanel ? 'text-white border-indigo-500' : 'text-gray-500 border-transparent hover:text-gray-300'"
+          :class="showQuizPanel ? 'text-white border-leaf-500' : 'text-gray-500 border-transparent hover:text-gray-300'"
         >
           Bài Tập
           <span class="ml-1 text-[10px] px-1.5 py-0.5 rounded-full font-bold"
-            :class="showQuizPanel ? 'bg-indigo-600 text-white' : 'bg-gray-700 text-gray-400'">
+            :class="showQuizPanel ? 'bg-leaf-500 text-white' : 'bg-gray-700 text-gray-400'">
             {{ quizQuestions.length }}
           </span>
         </button>
@@ -140,7 +140,7 @@
                     :key="video.mediaId"
                     @click="activeVideoIdx = idx"
                     class="px-3 py-1.5 text-xs font-semibold rounded-md transition-colors"
-                    :class="activeVideoIdx === idx ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"
+                    :class="activeVideoIdx === idx ? 'bg-leaf-500 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'"
                   >
                     {{ video.title || `Video ${idx + 1}` }}
                   </button>
@@ -159,13 +159,13 @@
             <div v-if="lesson.metadata?.mindmaps?.length" class="border-t border-gray-100">
               <!-- Section header -->
               <div class="px-4 sm:px-8 py-4 flex items-center gap-2">
-                <div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <svg class="w-4 h-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <div class="w-8 h-8 bg-leaf-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg class="w-4 h-4 text-leaf-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
                   </svg>
                 </div>
                 <h2 class="text-sm font-bold text-gray-800">Mindmap hỗ trợ học tập</h2>
-                <span class="text-xs bg-indigo-50 text-indigo-600 font-semibold px-2 py-0.5 rounded-full">{{ lesson.metadata.mindmaps.length }}</span>
+                <span class="text-xs bg-leaf-50 text-leaf-500 font-semibold px-2 py-0.5 rounded-full">{{ lesson.metadata.mindmaps.length }}</span>
               </div>
 
               <!-- Cards -->
@@ -178,14 +178,14 @@
                   <!-- Card header (toggle collapse) -->
                   <button
                     @click="toggleMindmap(idx)"
-                    class="w-full flex items-center justify-between gap-3 px-4 py-3 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-indigo-100/60 active:opacity-80 transition-opacity"
+                    class="w-full flex items-center justify-between gap-3 px-4 py-3 bg-gradient-to-r from-leaf-50 to-leaf-50 border-b border-leaf-100/60 active:opacity-80 transition-opacity"
                   >
                     <div class="flex items-center gap-2 min-w-0">
-                      <span class="w-5 h-5 flex-shrink-0 bg-indigo-500 rounded text-white text-[10px] font-bold flex items-center justify-center">{{ idx + 1 }}</span>
-                      <span class="text-sm font-semibold text-indigo-800 truncate">{{ mm.title || mm.treeData?.name || `Mindmap ${idx + 1}` }}</span>
+                      <span class="w-5 h-5 flex-shrink-0 bg-leaf-500 rounded text-white text-[10px] font-bold flex items-center justify-center">{{ idx + 1 }}</span>
+                      <span class="text-sm font-semibold text-leaf-800 truncate">{{ mm.title || mm.treeData?.name || `Mindmap ${idx + 1}` }}</span>
                     </div>
                     <svg
-                      class="w-4 h-4 text-indigo-400 flex-shrink-0 transition-transform duration-200"
+                      class="w-4 h-4 text-leaf-400 flex-shrink-0 transition-transform duration-200"
                       :style="{ transform: collapsedMindmaps.has(idx) ? 'rotate(-90deg)' : 'rotate(0deg)' }"
                       fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"
                     >
@@ -236,7 +236,7 @@
               <button
                 v-if="nextLesson"
                 @click="navigateTo(`/courses/${route.params.courseSlug}/lessons/${nextLesson.slug}`)"
-                class="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-700 rounded-xl text-sm font-semibold hover:bg-indigo-100 transition-all"
+                class="flex items-center gap-2 px-4 py-2 bg-leaf-50 text-leaf-700 rounded-xl text-sm font-semibold hover:bg-leaf-100 transition-all"
               >
                 Bài tiếp theo
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -265,8 +265,8 @@
 
                 <div class="space-y-2 mb-6">
                   <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                    <div class="w-9 h-9 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                      <svg class="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <div class="w-9 h-9 rounded-lg bg-leaf-100 flex items-center justify-center flex-shrink-0">
+                      <svg class="w-5 h-5 text-leaf-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                       </svg>
                     </div>
@@ -314,7 +314,7 @@
                 </div>
 
                 <button @click="startQuiz"
-                  class="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-purple-600 transition-all shadow-md text-sm">
+                  class="w-full py-3 bg-gradient-to-r from-leaf-500 to-leaf-500 text-white font-semibold rounded-xl hover:from-leaf-500 hover:to-leaf-600 transition-all shadow-md text-sm">
                   Bắt đầu làm bài
                 </button>
               </div>
@@ -326,7 +326,7 @@
               <div class="sticky top-14 z-10 bg-white/95 backdrop-blur-sm border border-gray-200 rounded-2xl p-4 mb-5 shadow-sm">
                 <div class="flex items-center justify-between mb-2.5">
                   <span class="text-xs font-semibold text-gray-500">Trạng thái bài làm</span>
-                  <span class="text-xs font-bold" :class="answeredCount === quizQuestions.length ? 'text-green-600' : 'text-indigo-600'">
+                  <span class="text-xs font-bold" :class="answeredCount === quizQuestions.length ? 'text-green-600' : 'text-leaf-500'">
                     {{ answeredCount }} / {{ quizQuestions.length }} câu đã làm
                   </span>
                 </div>
@@ -334,7 +334,7 @@
                   <button
                     v-for="(q, idx) in quizQuestions" :key="q.id"
                     @click="scrollToQuestion(idx)"
-                    :class="['w-8 h-8 rounded-full text-xs font-bold transition-all', isQuestionAnswered(q) ? 'bg-indigo-400 text-white' : 'bg-gray-200 text-gray-500 hover:bg-gray-300']"
+                    :class="['w-8 h-8 rounded-full text-xs font-bold transition-all', isQuestionAnswered(q) ? 'bg-leaf-400 text-white' : 'bg-gray-200 text-gray-500 hover:bg-gray-300']"
                   >{{ idx + 1 }}</button>
                 </div>
               </div>
@@ -344,7 +344,7 @@
                   :id="`quiz-q-${qIndex}`"
                   class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm scroll-mt-36">
                   <div class="mb-4">
-                    <span class="text-xs font-semibold text-indigo-600 mb-2 block">Câu {{ qIndex + 1 }} / {{ quizQuestions.length }} • {{ question.points }} điểm</span>
+                    <span class="text-xs font-semibold text-leaf-500 mb-2 block">Câu {{ qIndex + 1 }} / {{ quizQuestions.length }} • {{ question.points }} điểm</span>
                     <div class="text-sm font-medium text-gray-900 leading-relaxed" v-html="question.questionText" />
                     <template v-if="question.media?.url">
                       <img v-if="question.media.type === 'image'" :src="question.media.url" class="mt-3 rounded-xl max-h-48 object-contain" />
@@ -356,10 +356,10 @@
                     <div v-for="option in question.options" :key="option.id"
                       @click="selectOption(question, option)"
                       :class="['flex items-center gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all select-none',
-                        isOptionSelected(question, option) ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50']">
+                        isOptionSelected(question, option) ? 'border-leaf-500 bg-leaf-50' : 'border-gray-200 hover:border-leaf-300 hover:bg-gray-50']">
                       <div :class="['w-5 h-5 flex-shrink-0 flex items-center justify-center border-2 transition-all',
                         question.answerType === 'multiple' ? 'rounded' : 'rounded-full',
-                        isOptionSelected(question, option) ? 'border-indigo-500 bg-indigo-500' : 'border-gray-300']">
+                        isOptionSelected(question, option) ? 'border-leaf-500 bg-leaf-500' : 'border-gray-300']">
                         <div v-if="isOptionSelected(question, option)" :class="['bg-white', question.answerType === 'multiple' ? 'w-2.5 h-2.5 rounded-sm' : 'w-2 h-2 rounded-full']" />
                       </div>
                       <span class="text-sm text-gray-700">{{ option.text }}</span>
@@ -370,7 +370,7 @@
 
               <div class="flex justify-center mt-6 pb-8">
                 <button @click="handleSubmitClick" :disabled="submitting"
-                  class="px-10 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-purple-600 transition-all shadow-lg disabled:opacity-50 text-sm">
+                  class="px-10 py-3 bg-gradient-to-r from-leaf-500 to-leaf-500 text-white font-semibold rounded-xl hover:from-leaf-500 hover:to-leaf-600 transition-all shadow-lg disabled:opacity-50 text-sm">
                   <span v-if="!submitting">Nộp bài</span>
                   <span v-else class="flex items-center gap-2">
                     <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
@@ -390,12 +390,12 @@
                 <div class="mb-4">
                   <div class="flex justify-between text-xs text-gray-500 mb-1.5">
                     <span>{{ currentSlide < quizQuestions.length ? `Câu ${currentSlide + 1} / ${quizQuestions.length}` : 'Hoàn tất' }}</span>
-                    <span class="font-semibold" :class="answeredCount === quizQuestions.length ? 'text-green-600' : 'text-indigo-600'">
+                    <span class="font-semibold" :class="answeredCount === quizQuestions.length ? 'text-green-600' : 'text-leaf-500'">
                       {{ answeredCount }} / {{ quizQuestions.length }} đã làm
                     </span>
                   </div>
                   <div class="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300"
+                    <div class="h-full bg-gradient-to-r from-leaf-500 to-leaf-500 rounded-full transition-all duration-300"
                       :style="{ width: `${((currentSlide + 1) / (quizQuestions.length + 1)) * 100}%` }" />
                   </div>
                 </div>
@@ -406,13 +406,13 @@
                     @click="currentSlide = idx"
                     :class="['w-8 h-8 rounded-full text-xs font-bold transition-all',
                       idx === currentSlide ? 'bg-rose-400 text-white scale-110 shadow-sm' :
-                      isQuestionAnswered(q) ? 'bg-indigo-400 text-white' : 'bg-gray-200 text-gray-500 hover:bg-gray-300']"
+                      isQuestionAnswered(q) ? 'bg-leaf-400 text-white' : 'bg-gray-200 text-gray-500 hover:bg-gray-300']"
                   >{{ idx + 1 }}</button>
                 </div>
 
                 <!-- Current question -->
                 <div v-if="currentSlide < quizQuestions.length && currentQuizQuestion" class="mb-5 min-h-[200px]">
-                  <span class="text-xs font-semibold text-indigo-600 mb-2 block">{{ currentQuizQuestion.points }} điểm</span>
+                  <span class="text-xs font-semibold text-leaf-500 mb-2 block">{{ currentQuizQuestion.points }} điểm</span>
                   <div class="text-sm font-medium text-gray-900 mb-4 leading-relaxed" v-html="currentQuizQuestion.questionText" />
                   <template v-if="currentQuizQuestion.media?.url">
                     <img v-if="currentQuizQuestion.media.type === 'image'" :src="currentQuizQuestion.media.url" class="mb-3 rounded-xl max-h-40 object-contain" />
@@ -423,10 +423,10 @@
                     <div v-for="option in currentQuizQuestion.options" :key="option.id"
                       @click="selectOption(currentQuizQuestion, option)"
                       :class="['flex items-center gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all select-none',
-                        isOptionSelected(currentQuizQuestion, option) ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50']">
+                        isOptionSelected(currentQuizQuestion, option) ? 'border-leaf-500 bg-leaf-50' : 'border-gray-200 hover:border-leaf-300 hover:bg-gray-50']">
                       <div :class="['w-5 h-5 flex-shrink-0 flex items-center justify-center border-2 transition-all',
                         currentQuizQuestion.answerType === 'multiple' ? 'rounded' : 'rounded-full',
-                        isOptionSelected(currentQuizQuestion, option) ? 'border-indigo-500 bg-indigo-500' : 'border-gray-300']">
+                        isOptionSelected(currentQuizQuestion, option) ? 'border-leaf-500 bg-leaf-500' : 'border-gray-300']">
                         <div v-if="isOptionSelected(currentQuizQuestion, option)" :class="['bg-white', currentQuizQuestion.answerType === 'multiple' ? 'w-2.5 h-2.5 rounded-sm' : 'w-2 h-2 rounded-full']" />
                       </div>
                       <span class="text-sm text-gray-700">{{ option.text }}</span>
@@ -436,8 +436,8 @@
 
                 <!-- Last slide -->
                 <div v-else class="text-center py-6 min-h-[200px] flex flex-col items-center justify-center">
-                  <div class="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mb-3">
-                    <svg class="w-7 h-7 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <div class="w-14 h-14 bg-leaf-50 rounded-2xl flex items-center justify-center mb-3">
+                    <svg class="w-7 h-7 text-leaf-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
@@ -455,14 +455,14 @@
                     Trước
                   </button>
                   <button v-if="currentSlide < quizQuestions.length" @click="currentSlide++"
-                    class="flex items-center gap-1.5 px-4 py-2 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-colors text-sm">
+                    class="flex items-center gap-1.5 px-4 py-2 bg-leaf-500 text-white font-semibold rounded-xl hover:bg-leaf-700 transition-colors text-sm">
                     Tiếp
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
                   <button v-else @click="handleSubmitClick" :disabled="submitting"
-                    class="px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold rounded-xl hover:from-indigo-600 hover:to-purple-600 transition-all disabled:opacity-50 text-sm">
+                    class="px-5 py-2 bg-gradient-to-r from-leaf-500 to-leaf-500 text-white font-semibold rounded-xl hover:from-leaf-500 hover:to-leaf-600 transition-all disabled:opacity-50 text-sm">
                     {{ submitting ? 'Đang nộp...' : 'Nộp bài' }}
                   </button>
                 </div>
@@ -486,7 +486,7 @@
                 </p>
                 <p class="text-gray-500 text-xs">Đúng {{ quizCorrectCount }} / {{ quizQuestions.length }} câu</p>
                 <button @click="resetQuiz"
-                  class="mt-4 px-6 py-2 border border-indigo-200 text-indigo-700 font-semibold text-sm rounded-xl hover:bg-indigo-50 transition-colors">
+                  class="mt-4 px-6 py-2 border border-leaf-200 text-leaf-700 font-semibold text-sm rounded-xl hover:bg-leaf-50 transition-colors">
                   Làm lại
                 </button>
               </div>
@@ -552,10 +552,10 @@
             <div class="mt-3">
               <div class="flex items-center justify-between mb-1.5">
                 <span class="text-xs text-gray-500">Tiến độ</span>
-                <span class="text-xs font-semibold text-indigo-600">{{ completedLessonIds.length }} / {{ allLessons.length }} bài</span>
+                <span class="text-xs font-semibold text-leaf-500">{{ completedLessonIds.length }} / {{ allLessons.length }} bài</span>
               </div>
               <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500"
+                <div class="h-full bg-gradient-to-r from-leaf-500 to-leaf-500 rounded-full transition-all duration-500"
                   :style="{ width: `${progressPercent}%` }" />
               </div>
             </div>
@@ -567,20 +567,20 @@
               </div>
               <div v-for="l in chapter.lessons" :key="l.id" class="border-b border-gray-50">
                 <div class="flex items-start gap-3 px-4 py-2.5 border-l-2 transition-colors"
-                  :class="l.slug === route.params.lessonSlug ? 'border-l-indigo-500 bg-indigo-50/60' : 'border-l-transparent'">
+                  :class="l.slug === route.params.lessonSlug ? 'border-l-leaf-500 bg-leaf-50/60' : 'border-l-transparent'">
                   <div class="mt-0.5 flex-shrink-0">
                     <div v-if="completedLessonIds.includes(l.id)" class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
                       <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                       </svg>
                     </div>
-                    <div v-else-if="l.slug === route.params.lessonSlug" class="w-5 h-5 bg-indigo-600 rounded-full flex items-center justify-center">
+                    <div v-else-if="l.slug === route.params.lessonSlug" class="w-5 h-5 bg-leaf-500 rounded-full flex items-center justify-center">
                       <div class="w-2 h-2 bg-white rounded-full" />
                     </div>
                     <div v-else class="w-5 h-5 border-2 border-gray-200 rounded-full" />
                   </div>
                   <span class="text-sm leading-snug"
-                    :class="l.slug === route.params.lessonSlug ? 'font-semibold text-indigo-700' : 'text-gray-600 font-medium'">
+                    :class="l.slug === route.params.lessonSlug ? 'font-semibold text-leaf-700' : 'text-gray-600 font-medium'">
                     {{ l.title }}
                   </span>
                 </div>
@@ -590,7 +590,7 @@
                     :to="`/courses/${route.params.courseSlug}/lessons/${l.slug}`"
                     class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
                     :class="l.slug === route.params.lessonSlug && !route.query.tab
-                      ? 'bg-indigo-100 text-indigo-700 font-semibold ring-1 ring-indigo-300'
+                      ? 'bg-leaf-100 text-leaf-700 font-semibold ring-1 ring-leaf-300'
                       : completedLessonIds.includes(l.id) ? 'text-green-600 hover:bg-green-50' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'"
                   >
                     <svg v-if="completedLessonIds.includes(l.id)" class="w-3.5 h-3.5 flex-shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
@@ -651,7 +651,7 @@
             Quay lại
           </button>
           <button @click="showSubmitConfirm = false; submitQuiz()"
-            class="flex-1 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold text-sm rounded-xl hover:from-indigo-600 hover:to-purple-600 transition-all">
+            class="flex-1 py-2.5 bg-gradient-to-r from-leaf-500 to-leaf-500 text-white font-semibold text-sm rounded-xl hover:from-leaf-500 hover:to-leaf-600 transition-all">
             Nộp bài
           </button>
         </div>
