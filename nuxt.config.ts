@@ -37,5 +37,13 @@ export default defineNuxtConfig({
     },
   },
 
+  app: {
+    head: {
+      link: [
+        { rel: 'manifest', href: '/manifest.webmanifest' },
+      ],
+    },
+  },
+
   compatibilityDate: '2024-11-01',
 })
