@@ -13,7 +13,17 @@ export default defineNuxtConfig({
     redirect: false,
   },
 
+  // Pre-render / so Nitro outputs index.html → Workbox pre-caches it → app shell
+  // available offline immediately after SW installs (no prior online visit needed)
+  nitro: {
+    prerender: {
+      routes: ['/'],
+    },
+  },
+
   pwa: {
+    // Auto-update: new SW skips waiting and claims all clients immediately
+    registerType: 'autoUpdate',
     manifest: {
       name: 'Hasagi Study',
       short_name: 'Hasagi Study',
@@ -31,24 +41,11 @@ export default defineNuxtConfig({
       ],
     },
     workbox: {
+      // index.html (pre-rendered above) is in precache → navigateFallback serves it
+      // for ALL navigation requests offline (Vue Router handles routing client-side)
       navigateFallback: '/',
       globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
-      runtimeCaching: [
-        {
-          // Cache all app page routes so they're available offline after first visit
-          urlPattern: /^https?:\/\/[^/]+(\/|\/courses.*|\/login.*|\/connect.*|\/settings.*)(\?.*)?$/,
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'pages-cache',
-            networkTimeoutSeconds: 3,
-            cacheableResponse: { statuses: [200] },
-            expiration: {
-              maxEntries: 20,
-              maxAgeSeconds: 60 * 60 * 24 * 7,
-            },
-          },
-        },
-      ],
+      cleanupOutdatedCaches: true,
     },
     devOptions: {
       enabled: false,
