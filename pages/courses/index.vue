@@ -145,9 +145,11 @@
 <script setup>
 import { useStudyStore } from '~/composables/useStudyStore'
 import { useLmsStudent } from '~/composables/useLmsStudent'
+import { useCoursesCache } from '~/composables/useCoursesCache'
 
 const store = useStudyStore()
 const { validateSession } = useLmsStudent()
+const { getCourses, saveCourses } = useCoursesCache()
 
 const courses = ref([])
 const loading = ref(true)
@@ -161,6 +163,22 @@ onMounted(async () => {
   if (!store.orgSlug) return navigateTo('/connect')
   if (!store.sessionToken) return navigateTo('/login')
 
+  // Load from IndexedDB first for instant display (also works offline)
+  try {
+    const cached = await getCourses(store.orgSlug)
+    if (cached) {
+      courses.value = cached
+      loading.value = false
+    }
+  } catch { /* ignore cache errors */ }
+
+  // Offline: nothing more to do
+  if (!navigator.onLine) {
+    loading.value = false
+    return
+  }
+
+  // Online: validate session + refresh courses in background
   try {
     const student = await validateSession(store.sessionToken)
     if (!student) {
@@ -173,9 +191,9 @@ onMounted(async () => {
       headers: { 'x-lms-session': store.sessionToken },
     })
     courses.value = data
+    saveCourses(store.orgSlug, data).catch(() => {})
   } catch {
-    // Network error — keep session, show empty list
-    courses.value = []
+    // Network error — already showing cached data
   } finally {
     loading.value = false
   }

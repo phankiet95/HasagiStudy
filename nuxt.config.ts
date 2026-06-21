@@ -32,7 +32,23 @@ export default defineNuxtConfig({
     },
     workbox: {
       navigateFallback: '/',
-      globPatterns: ['**/*.{js,css,html,svg}'],
+      globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
+      runtimeCaching: [
+        {
+          // Cache all app page routes so they're available offline after first visit
+          urlPattern: /^https?:\/\/[^/]+(\/|\/courses.*|\/login.*|\/connect.*|\/settings.*)(\?.*)?$/,
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'pages-cache',
+            networkTimeoutSeconds: 3,
+            cacheableResponse: { statuses: [200] },
+            expiration: {
+              maxEntries: 20,
+              maxAgeSeconds: 60 * 60 * 24 * 7,
+            },
+          },
+        },
+      ],
     },
     devOptions: {
       enabled: false,
