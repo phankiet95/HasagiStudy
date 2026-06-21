@@ -89,6 +89,7 @@
 
 <script setup>
 definePageMeta({ layout: 'blank' })
+useHead({ meta: [{ name: 'theme-color', content: '#cdeacd' }] })
 
 import { useStudyStore } from '~/composables/useStudyStore'
 
@@ -101,6 +102,16 @@ const error = ref('')
 const orgFound = ref(false)
 const orgData = ref(null)
 const orgLogo = computed(() => orgData.value?.page_config?.header?.logo || orgData.value?.avatar_url || '')
+
+const route = useRoute()
+
+onMounted(() => {
+  const org = route.query.org
+  if (org && typeof org === 'string' && org.trim()) {
+    slugInput.value = org.trim()
+    connectOrg()
+  }
+})
 
 const connectOrg = async () => {
   const slug = slugInput.value.trim().toLowerCase()

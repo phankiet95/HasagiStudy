@@ -58,6 +58,10 @@ export default defineNuxtConfig({
         { rel: 'manifest', href: '/manifest.webmanifest' },
         { rel: 'icon', type: 'image/png', href: '/icons/favicon.png' },
       ],
+      meta: [
+        { name: 'theme-color', content: '#ffffff' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'default' },
+      ],
     },
   },
 

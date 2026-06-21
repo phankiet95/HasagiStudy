@@ -143,6 +143,7 @@
 
 <script setup>
 definePageMeta({ layout: 'blank' })
+useHead({ meta: [{ name: 'theme-color', content: '#cdeacd' }] })
 
 import { useStudyStore } from '~/composables/useStudyStore'
 import { useLmsStudent } from '~/composables/useLmsStudent'

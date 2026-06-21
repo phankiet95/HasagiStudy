@@ -94,6 +94,16 @@
             </svg>
             <span class="hidden sm:inline">Đã hoàn thành</span>
           </div>
+
+          <!-- Burger menu: mobile only -->
+          <button @click="sidebarOpen = true"
+            class="lg:hidden w-8 h-8 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center text-gray-400 hover:text-white transition-colors flex-shrink-0"
+            title="Danh sách bài học"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -126,8 +136,103 @@
         <!-- Left column -->
         <div class="flex-1 min-w-0 flex flex-col bg-white">
 
+          <!-- ── FLASHCARD LESSON ── -->
+          <template v-if="isFlashcardLesson">
+            <div class="flex-1 overflow-y-auto">
+              <div class="max-w-3xl mx-auto px-4 sm:px-6 py-6">
+
+                <!-- Header card -->
+                <div class="bg-leaf-50 border border-leaf-200 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row sm:items-center gap-4">
+                  <div class="flex items-center gap-4 flex-1">
+                    <div class="w-12 h-12 bg-leaf-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <svg class="w-6 h-6 text-leaf-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h1 class="font-bold text-gray-900 text-lg leading-snug">{{ lesson.title }}</h1>
+                      <span class="text-sm text-leaf-600 font-medium">{{ flashcards.length }} thẻ ghi nhớ</span>
+                    </div>
+                  </div>
+                  <button @click="startStudyMode" :disabled="!flashcards.length"
+                    class="flex items-center gap-2 px-5 py-3 bg-leaf-500 hover:bg-leaf-600 text-white font-semibold rounded-xl transition-all shadow-md disabled:opacity-50 flex-shrink-0 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Học Flashcard
+                  </button>
+                </div>
+
+                <!-- Card grid -->
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Danh sách thẻ ({{ flashcards.length }})</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div v-for="(card, idx) in flashcards" :key="idx"
+                    class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+                    <div class="h-1.5 bg-gradient-to-r from-leaf-400 to-leaf-600" />
+                    <div class="p-4">
+                      <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-semibold text-leaf-600 bg-leaf-50 px-2 py-0.5 rounded-full">Thẻ {{ idx + 1 }}</span>
+                        <button @click="speakFlashcard(card.term, card.termVoice?.url)" :disabled="isSpeaking"
+                          class="w-7 h-7 rounded-full flex items-center justify-center transition-colors disabled:opacity-50"
+                          :class="card.termVoice?.url ? 'bg-orange-100 text-orange-600 hover:bg-orange-200' : 'bg-leaf-100 text-leaf-600 hover:bg-leaf-200'">
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                          </svg>
+                        </button>
+                      </div>
+                      <p class="font-bold text-leaf-800 text-base mb-1">{{ card.term }}</p>
+                      <p class="text-gray-600 text-sm">{{ card.definition }}</p>
+                      <div v-if="card.examples?.some(e => e?.trim())" class="mt-2 pt-2 border-t border-gray-100">
+                        <ul class="space-y-1">
+                          <template v-for="(ex, exIdx) in card.examples" :key="exIdx">
+                            <li v-if="ex?.trim()" class="flex items-center justify-between gap-2 text-xs text-gray-500 bg-blue-50 px-2 py-1 rounded">
+                              <span>{{ ex }}</span>
+                              <button @click="speakFlashcard(ex, card.exampleVoices?.[exIdx]?.url)" :disabled="isSpeaking"
+                                class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center transition-colors disabled:opacity-50"
+                                :class="card.exampleVoices?.[exIdx]?.url ? 'bg-orange-100 text-orange-600 hover:bg-orange-200' : 'bg-blue-100 text-blue-600 hover:bg-blue-200'">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                                </svg>
+                              </button>
+                            </li>
+                          </template>
+                        </ul>
+                      </div>
+                      <div v-if="card.media?.url" class="mt-2 pt-2 border-t border-gray-100">
+                        <img v-if="card.media.type === 'image'" :src="card.media.url" :alt="card.term" class="w-full h-24 object-cover rounded-xl" />
+                        <video v-else-if="card.media.type === 'video'" :src="card.media.url" controls class="w-full rounded-xl bg-black" preload="metadata" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Prev/next navigation -->
+                <div v-if="prevLesson || nextLesson" class="mt-6 border-t border-gray-200 pt-3 flex items-center justify-between gap-3">
+                  <button v-if="prevLesson" @click="navigateTo(`/courses/${route.params.courseSlug}/lessons/${prevLesson.slug}`)"
+                    class="flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-600 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-all">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    </svg>
+                    Bài trước
+                  </button>
+                  <div v-else />
+                  <button v-if="nextLesson" @click="navigateTo(`/courses/${route.params.courseSlug}/lessons/${nextLesson.slug}`)"
+                    class="flex items-center gap-2 px-4 py-2 bg-leaf-50 text-leaf-700 rounded-xl text-sm font-semibold hover:bg-leaf-100 transition-all">
+                    Bài tiếp theo
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                    </svg>
+                  </button>
+                  <div v-else />
+                </div>
+
+              </div>
+            </div>
+          </template>
+
           <!-- ── LESSON CONTENT ── -->
-          <template v-if="!showQuizPanel">
+          <template v-else-if="!showQuizPanel">
             <!-- Video -->
             <div v-if="lesson.metadata?.videos?.length" class="bg-black flex-shrink-0">
               <div v-if="lesson.metadata.videos.length === 1">
@@ -631,6 +736,134 @@
     </template>
   </div>
 
+  <!-- Mobile sidebar drawer -->
+  <Teleport to="body">
+    <!-- Backdrop -->
+    <Transition
+      enter-active-class="transition-opacity duration-300"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-200"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="sidebarOpen"
+        class="fixed inset-0 z-40 lg:hidden bg-black/60 backdrop-blur-sm"
+        @click="sidebarOpen = false"
+      />
+    </Transition>
+
+    <!-- Drawer panel -->
+    <Transition
+      enter-active-class="transition-transform duration-300 ease-out"
+      enter-from-class="translate-x-full"
+      enter-to-class="translate-x-0"
+      leave-active-class="transition-transform duration-200 ease-in"
+      leave-from-class="translate-x-0"
+      leave-to-class="translate-x-full"
+    >
+      <div v-if="sidebarOpen"
+        class="fixed right-0 top-0 h-full z-50 w-80 max-w-[85vw] flex flex-col shadow-2xl lg:hidden bg-white"
+      >
+        <!-- Drawer header (dark, matching top bar) -->
+        <div class="bg-leaf-900 px-4 flex items-center gap-3 flex-shrink-0 h-14">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs text-gray-400 truncate">{{ courseName }}</p>
+            <p class="text-sm font-bold text-white">Danh sách bài học</p>
+          </div>
+          <button @click="sidebarOpen = false"
+            class="w-8 h-8 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center text-gray-400 hover:text-white transition-colors flex-shrink-0"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="px-4 py-3 border-b border-gray-100 flex-shrink-0">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs text-gray-500">Tiến độ</span>
+            <span class="text-xs font-semibold text-leaf-500">{{ completedLessonIds.length }} / {{ allLessons.length }} bài</span>
+          </div>
+          <div class="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-leaf-500 to-leaf-500 rounded-full transition-all duration-500"
+              :style="{ width: `${progressPercent}%` }" />
+          </div>
+        </div>
+
+        <!-- Lesson list -->
+        <div class="flex-1 overflow-y-auto">
+          <template v-for="chapter in groupedLessons" :key="chapter.id">
+            <div v-if="chapter.title" class="px-4 py-2.5 bg-gray-50 border-b border-gray-100 sticky top-0 z-10">
+              <p class="text-xs font-bold text-gray-500 uppercase tracking-wider truncate">{{ chapter.title }}</p>
+            </div>
+            <div v-for="l in chapter.lessons" :key="l.id" class="border-b border-gray-50">
+              <div class="flex items-start gap-3 px-4 py-2.5 border-l-2 transition-colors"
+                :class="l.slug === route.params.lessonSlug ? 'border-l-leaf-500 bg-leaf-50/60' : 'border-l-transparent'">
+                <div class="mt-0.5 flex-shrink-0">
+                  <div v-if="completedLessonIds.includes(l.id)" class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                    <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                  </div>
+                  <div v-else-if="l.slug === route.params.lessonSlug" class="w-5 h-5 bg-leaf-500 rounded-full flex items-center justify-center">
+                    <div class="w-2 h-2 bg-white rounded-full" />
+                  </div>
+                  <div v-else class="w-5 h-5 border-2 border-gray-200 rounded-full" />
+                </div>
+                <span class="text-sm leading-snug"
+                  :class="l.slug === route.params.lessonSlug ? 'font-semibold text-leaf-700' : 'text-gray-600 font-medium'">
+                  {{ l.title }}
+                </span>
+              </div>
+              <div class="pl-12 pb-2 flex flex-col gap-0.5">
+                <NuxtLink
+                  v-if="l.metadata?.lesson_type !== 'exam'"
+                  :to="`/courses/${route.params.courseSlug}/lessons/${l.slug}`"
+                  @click="sidebarOpen = false"
+                  class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                  :class="l.slug === route.params.lessonSlug && !route.query.tab
+                    ? 'bg-leaf-100 text-leaf-700 font-semibold ring-1 ring-leaf-300'
+                    : completedLessonIds.includes(l.id) ? 'text-green-600 hover:bg-green-50' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'"
+                >
+                  <svg v-if="completedLessonIds.includes(l.id)" class="w-3.5 h-3.5 flex-shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                  <svg v-else class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                  </svg>
+                  Bài Học
+                </NuxtLink>
+                <NuxtLink
+                  v-if="l.metadata?.quiz?.quizQuestionList?.length"
+                  :to="`/courses/${route.params.courseSlug}/lessons/${l.slug}?tab=quiz`"
+                  @click="sidebarOpen = false"
+                  class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                  :class="l.slug === route.params.lessonSlug && route.query.tab === 'quiz'
+                    ? 'bg-amber-100 text-amber-700 font-semibold ring-1 ring-amber-300'
+                    : passedQuizLessonIds.includes(l.id) ? 'text-green-600 hover:bg-green-50' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'"
+                >
+                  <svg v-if="passedQuizLessonIds.includes(l.id)" class="w-3.5 h-3.5 flex-shrink-0 text-green-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                  <svg v-else class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+                  </svg>
+                  Bài Tập
+                  <span class="ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                    :class="passedQuizLessonIds.includes(l.id) ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'">
+                    {{ l.metadata.quiz.quizQuestionList.length }}
+                  </span>
+                </NuxtLink>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
+
   <!-- Submit confirmation dialog -->
   <Teleport to="body">
     <div v-if="showSubmitConfirm" class="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -658,10 +891,229 @@
       </div>
     </div>
   </Teleport>
+
+  <!-- Flashcard study mode (fullscreen) -->
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition-opacity duration-300"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-200"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="isStudyMode" class="fixed inset-0 z-50 bg-gray-950 flex flex-col select-none">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between gap-3 px-4 py-3 border-b border-gray-800 flex-shrink-0">
+          <div class="flex items-center gap-3 min-w-0">
+            <button @click="exitStudyMode"
+              class="w-9 h-9 rounded-xl bg-gray-800 hover:bg-gray-700 flex items-center justify-center text-gray-400 hover:text-white transition-colors flex-shrink-0">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div class="min-w-0">
+              <p class="text-white text-sm font-semibold truncate">{{ lesson?.title }}</p>
+              <p class="text-gray-400 text-xs">Thẻ {{ currentCardIndex + 1 }} / {{ studyCards.length }}</p>
+            </div>
+          </div>
+          <button @click="showFcSettings = !showFcSettings"
+            class="w-9 h-9 rounded-xl bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition-colors flex-shrink-0"
+            :class="showFcSettings ? 'text-leaf-400' : 'text-gray-400 hover:text-white'">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.43.992a6.759 6.759 0 010 .255c-.008.378.137.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Card progress bar -->
+        <div class="h-1 bg-gray-800 flex-shrink-0">
+          <div class="h-full bg-leaf-500 transition-all duration-300"
+            :style="{ width: `${((currentCardIndex + 1) / studyCards.length) * 100}%` }" />
+        </div>
+
+        <!-- AutoPlay progress bar -->
+        <div v-show="isAutoPlaying" class="h-0.5 bg-gray-800 flex-shrink-0 overflow-hidden">
+          <div class="h-full bg-amber-400"
+            :class="resettingProgress ? '' : 'transition-[width] ease-linear'"
+            :style="{ width: `${autoPlayProgress}%`, transitionDuration: resettingProgress ? '0ms' : `${fcSettings.autoPlayInterval}ms` }" />
+        </div>
+
+        <!-- Settings panel -->
+        <div v-show="showFcSettings" class="bg-gray-900 border-b border-gray-800 px-4 py-3 flex-shrink-0">
+          <div class="grid grid-cols-2 gap-3 max-w-sm mx-auto">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <div class="relative w-9 h-5 flex-shrink-0">
+                <input type="checkbox" class="sr-only" v-model="fcSettings.shuffle">
+                <div class="w-9 h-5 rounded-full transition-colors" :class="fcSettings.shuffle ? 'bg-leaf-500' : 'bg-gray-700'" />
+                <div class="absolute w-3.5 h-3.5 bg-white rounded-full top-0.5 transition-transform"
+                  :class="fcSettings.shuffle ? 'translate-x-4' : 'translate-x-0.5'" />
+              </div>
+              <span class="text-xs text-gray-300">Xáo thẻ</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <div class="relative w-9 h-5 flex-shrink-0">
+                <input type="checkbox" class="sr-only" v-model="fcSettings.autoSpeak">
+                <div class="w-9 h-5 rounded-full transition-colors" :class="fcSettings.autoSpeak ? 'bg-leaf-500' : 'bg-gray-700'" />
+                <div class="absolute w-3.5 h-3.5 bg-white rounded-full top-0.5 transition-transform"
+                  :class="fcSettings.autoSpeak ? 'translate-x-4' : 'translate-x-0.5'" />
+              </div>
+              <span class="text-xs text-gray-300">Tự đọc</span>
+            </label>
+            <div>
+              <p class="text-xs text-gray-400 mb-1">Tự chuyển</p>
+              <select v-model.number="fcSettings.autoPlayInterval"
+                @change="if (isAutoPlaying) { fcStopAutoPlay(); fcStartAutoPlay() }"
+                class="w-full bg-gray-800 text-gray-200 text-xs rounded-lg px-2 py-1.5 border border-gray-700">
+                <option :value="0">Tắt</option>
+                <option :value="3000">3 giây</option>
+                <option :value="5000">5 giây</option>
+                <option :value="8000">8 giây</option>
+                <option :value="10000">10 giây</option>
+              </select>
+            </div>
+            <div>
+              <p class="text-xs text-gray-400 mb-1">Lặp lại</p>
+              <select v-model.number="fcSettings.loopCount"
+                class="w-full bg-gray-800 text-gray-200 text-xs rounded-lg px-2 py-1.5 border border-gray-700">
+                <option :value="0">Không lặp</option>
+                <option :value="1">1 lần</option>
+                <option :value="2">2 lần</option>
+                <option :value="3">3 lần</option>
+                <option :value="-1">Vô hạn</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card area -->
+        <div class="flex-1 flex flex-col items-center justify-center px-4 py-4 gap-5 overflow-hidden">
+
+          <!-- 3D Flip Card -->
+          <div class="w-full max-w-lg">
+            <div class="fc-perspective w-full cursor-pointer" style="height: clamp(180px, 40vw, 300px)" @click="flipCard">
+              <div class="fc-card w-full h-full relative transition-transform duration-500" :class="isFlipped ? 'fc-flipped' : ''">
+                <!-- Front: Term -->
+                <div class="fc-front absolute inset-0 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center p-6 gap-3">
+                  <span class="absolute top-3 left-4 text-xs font-semibold text-gray-400 uppercase tracking-wide">Thuật ngữ</span>
+                  <div class="flex flex-col items-center gap-3 w-full">
+                    <p class="text-2xl sm:text-3xl font-bold text-gray-900 text-center leading-snug">{{ currentCard?.term }}</p>
+                    <div v-if="currentCard?.media?.url && currentCard?.media?.type === 'image'" class="w-full max-h-20 overflow-hidden rounded-xl">
+                      <img :src="currentCard.media.url" :alt="currentCard?.term" class="w-full h-full object-contain" />
+                    </div>
+                  </div>
+                  <button @click.stop="speakFlashcard(currentCard?.term, currentCard?.termVoice?.url)" :disabled="isSpeaking"
+                    class="absolute bottom-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-colors disabled:opacity-40"
+                    :class="currentCard?.termVoice?.url ? 'bg-orange-100 text-orange-600 hover:bg-orange-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                    </svg>
+                  </button>
+                </div>
+                <!-- Back: Definition -->
+                <div class="fc-back absolute inset-0 bg-leaf-50 rounded-2xl shadow-xl flex flex-col p-5 gap-2 overflow-y-auto">
+                  <span class="text-xs font-semibold text-leaf-500 uppercase tracking-wide flex-shrink-0">Định nghĩa</span>
+                  <p class="text-lg sm:text-xl font-semibold text-gray-800 leading-snug flex-1">{{ currentCard?.definition }}</p>
+                  <div v-if="currentCard?.examples?.some(e => e?.trim())" class="space-y-1 pt-2 border-t border-leaf-200 flex-shrink-0">
+                    <template v-for="(ex, exIdx) in currentCard.examples" :key="exIdx">
+                      <div v-if="ex?.trim()" class="flex items-center justify-between gap-2 text-sm text-gray-600 bg-white/80 px-3 py-1.5 rounded-lg">
+                        <span>{{ ex }}</span>
+                        <button @click.stop="speakFlashcard(ex, currentCard.exampleVoices?.[exIdx]?.url)" :disabled="isSpeaking"
+                          class="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-colors disabled:opacity-40"
+                          :class="currentCard.exampleVoices?.[exIdx]?.url ? 'bg-orange-100 text-orange-600 hover:bg-orange-200' : 'bg-blue-100 text-blue-600 hover:bg-blue-200'">
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                          </svg>
+                        </button>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="text-center text-xs text-gray-600 mt-2">Nhấn vào thẻ để lật · Space / Enter</p>
+          </div>
+
+          <!-- Navigation controls -->
+          <div class="flex items-center gap-4">
+            <button @click="previousCard" :disabled="currentCardIndex === 0"
+              class="w-12 h-12 rounded-2xl bg-gray-800 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-white transition-colors">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+              </svg>
+            </button>
+            <button @click="flipCard"
+              class="flex items-center gap-2 px-5 py-3 bg-leaf-600 hover:bg-leaf-500 text-white font-semibold rounded-2xl text-sm transition-colors">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+              Lật thẻ
+            </button>
+            <button @click="nextCard"
+              class="w-12 h-12 rounded-2xl bg-gray-800 hover:bg-gray-700 flex items-center justify-center text-white transition-colors">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- AutoPlay toggle -->
+          <button v-if="fcSettings.autoPlayInterval > 0" @click="toggleAutoPlay"
+            class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+            :class="isAutoPlaying ? 'bg-amber-500/20 text-amber-400 hover:bg-amber-500/30' : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path v-if="isAutoPlaying" stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+              <path v-else stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
+            </svg>
+            {{ isAutoPlaying ? 'Dừng tự chuyển' : 'Tự chuyển thẻ' }}
+          </button>
+
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
+
+  <!-- Flashcard completion modal -->
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition-all duration-300"
+      enter-from-class="opacity-0 scale-95"
+      enter-to-class="opacity-100 scale-100"
+      leave-active-class="transition-all duration-200"
+      leave-from-class="opacity-100 scale-100"
+      leave-to-class="opacity-0 scale-95"
+    >
+      <div v-if="showCompletionModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="showCompletionModal = false" />
+        <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm p-7 text-center">
+          <div class="w-16 h-16 bg-leaf-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-leaf-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-1">Hoàn thành!</h3>
+          <p class="text-gray-500 text-sm mb-6">Bạn đã ôn tập xong <span class="font-semibold text-leaf-600">{{ studyCards.length }}</span> thẻ ghi nhớ.</p>
+          <div class="flex flex-col gap-2.5">
+            <button @click="restartStudy"
+              class="w-full py-3 bg-leaf-500 hover:bg-leaf-600 text-white font-semibold rounded-xl text-sm transition-colors">
+              Học lại
+            </button>
+            <button @click="exitStudyMode"
+              class="w-full py-3 border border-gray-200 text-gray-700 font-semibold rounded-xl text-sm hover:bg-gray-50 transition-colors">
+              Thoát
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup>
 definePageMeta({ layout: 'blank' })
+useHead({ meta: [{ name: 'theme-color', content: '#013237' }] })
 
 import { useStudyStore } from '~/composables/useStudyStore'
 import { useLmsStudent } from '~/composables/useLmsStudent'
@@ -673,7 +1125,10 @@ const { getOfflineLesson, getOfflineObjectUrls, applyObjectUrls } = useOfflineLe
 const route = useRoute()
 
 const isOfflineMode = ref(false)
+const sidebarOpen = ref(false)
 let objectUrlMap = new Map()
+
+watch(() => route.params.lessonSlug, () => { sidebarOpen.value = false })
 
 // Mindmap collapse state (all expanded by default)
 const collapsedMindmaps = ref(new Set())
@@ -705,7 +1160,27 @@ const quizEarnedPoints = ref(0)
 const quizCorrectCount = ref(0)
 const lastQuizAttempt = ref(null)
 
+// Flashcard study mode
+const isStudyMode = ref(false)
+const studyCards = ref([])
+const currentCardIndex = ref(0)
+const isFlipped = ref(false)
+const showFcSettings = ref(false)
+const showCompletionModal = ref(false)
+const currentLoop = ref(0)
+const fcSettings = ref({ shuffle: false, autoPlayInterval: 0, loopCount: 0, autoSpeak: true })
+const isAutoPlaying = ref(false)
+const autoPlayProgress = ref(0)
+const resettingProgress = ref(false)
+let autoPlayTimer = null
+const isSpeaking = ref(false)
+let fcCurrentAudio = null
+const currentCard = computed(() => studyCards.value[currentCardIndex.value] ?? null)
+
 const isExamLesson = computed(() => lesson.value?.metadata?.lesson_type === 'exam')
+const isFlashcardLesson = computed(() => lesson.value?.metadata?.lesson_type === 'flashcard')
+const flashcards = computed(() => lesson.value?.metadata?.flashcards || [])
+const flashcardLanguage = computed(() => lesson.value?.metadata?.language || 'vi')
 const showQuizPanel = computed(() => route.query.tab === 'quiz' || isExamLesson.value)
 
 const quiz = computed(() => lesson.value?.metadata?.quiz)
@@ -937,9 +1412,145 @@ onMounted(async () => {
   }
 })
 
+// ── Flashcard functions ──
+
+const speakFlashcard = (text, voiceUrl = null) => {
+  if (fcCurrentAudio) { fcCurrentAudio.pause(); fcCurrentAudio = null; isSpeaking.value = false }
+  window.speechSynthesis?.cancel()
+  if (voiceUrl) {
+    const audio = new Audio(voiceUrl)
+    isSpeaking.value = true
+    audio.onended = () => { isSpeaking.value = false; fcCurrentAudio = null }
+    audio.onerror = () => { isSpeaking.value = false; fcCurrentAudio = null }
+    audio.play().catch(() => { isSpeaking.value = false; fcCurrentAudio = null })
+    fcCurrentAudio = audio
+    return
+  }
+  if (!text || !window.speechSynthesis) return
+  const langMap = { vi: 'vi-VN', en: 'en-US', ja: 'ja-JP', zh: 'zh-CN', ko: 'ko-KR', ru: 'ru-RU', de: 'de-DE', fr: 'fr-FR', es: 'es-ES', pt: 'pt-BR', th: 'th-TH' }
+  const utterance = new SpeechSynthesisUtterance(text)
+  utterance.lang = langMap[flashcardLanguage.value] || 'en-US'
+  utterance.rate = 0.8
+  utterance.onstart = () => { isSpeaking.value = true }
+  utterance.onend = () => { isSpeaking.value = false }
+  utterance.onerror = () => { isSpeaking.value = false }
+  window.speechSynthesis.speak(utterance)
+}
+
+const fcShuffle = (arr) => {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+}
+
+const startStudyMode = () => {
+  if (!flashcards.value.length) return
+  studyCards.value = [...flashcards.value]
+  if (fcSettings.value.shuffle) fcShuffle(studyCards.value)
+  currentCardIndex.value = 0
+  currentLoop.value = 0
+  isFlipped.value = false
+  showCompletionModal.value = false
+  isStudyMode.value = true
+  if (fcSettings.value.autoSpeak) {
+    setTimeout(() => speakFlashcard(currentCard.value?.term, currentCard.value?.termVoice?.url), 400)
+  }
+  if (fcSettings.value.autoPlayInterval > 0) fcStartAutoPlay()
+}
+
+const exitStudyMode = () => {
+  isStudyMode.value = false
+  showCompletionModal.value = false
+  fcStopAutoPlay()
+  window.speechSynthesis?.cancel()
+  if (fcCurrentAudio) { fcCurrentAudio.pause(); fcCurrentAudio = null }
+  isSpeaking.value = false
+}
+
+const restartStudy = () => { showCompletionModal.value = false; startStudyMode() }
+
+const flipCard = () => { isFlipped.value = !isFlipped.value }
+
+const nextCard = () => {
+  if (currentCardIndex.value < studyCards.value.length - 1) {
+    currentCardIndex.value++
+    isFlipped.value = false
+    fcResetAutoPlayProgress()
+    if (fcSettings.value.autoSpeak) {
+      setTimeout(() => speakFlashcard(currentCard.value?.term, currentCard.value?.termVoice?.url), 200)
+    }
+  } else {
+    fcHandleEnd()
+  }
+}
+
+const previousCard = () => {
+  if (currentCardIndex.value > 0) {
+    currentCardIndex.value--
+    isFlipped.value = false
+    fcResetAutoPlayProgress()
+    if (fcSettings.value.autoSpeak) {
+      setTimeout(() => speakFlashcard(currentCard.value?.term, currentCard.value?.termVoice?.url), 200)
+    }
+  }
+}
+
+const fcHandleEnd = () => {
+  if (fcSettings.value.loopCount === -1 || currentLoop.value < fcSettings.value.loopCount) {
+    currentLoop.value++
+    if (fcSettings.value.shuffle) fcShuffle(studyCards.value)
+    currentCardIndex.value = 0
+    isFlipped.value = false
+    fcResetAutoPlayProgress()
+  } else {
+    fcStopAutoPlay()
+    showCompletionModal.value = true
+  }
+}
+
+const fcStartAutoPlay = () => {
+  if (!fcSettings.value.autoPlayInterval) return
+  isAutoPlaying.value = true
+  resettingProgress.value = true
+  autoPlayProgress.value = 0
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    resettingProgress.value = false
+    autoPlayProgress.value = 100
+  }))
+  autoPlayTimer = setTimeout(nextCard, fcSettings.value.autoPlayInterval)
+}
+
+const fcStopAutoPlay = () => {
+  isAutoPlaying.value = false
+  autoPlayProgress.value = 0
+  resettingProgress.value = false
+  if (autoPlayTimer) { clearTimeout(autoPlayTimer); autoPlayTimer = null }
+}
+
+const fcResetAutoPlayProgress = () => {
+  if (isAutoPlaying.value) { fcStopAutoPlay(); fcStartAutoPlay() }
+}
+
+const toggleAutoPlay = () => { if (isAutoPlaying.value) fcStopAutoPlay(); else fcStartAutoPlay() }
+
+const handleFcKeydown = (e) => {
+  if (!isStudyMode.value) return
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard() }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); nextCard() }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); previousCard() }
+  else if (e.key === 'Escape') exitStudyMode()
+}
+
+onMounted(() => { window.addEventListener('keydown', handleFcKeydown) })
+
 onBeforeUnmount(() => {
   if (timerInterval) clearInterval(timerInterval)
   for (const objUrl of objectUrlMap.values()) URL.revokeObjectURL(objUrl)
+  window.removeEventListener('keydown', handleFcKeydown)
+  if (autoPlayTimer) clearTimeout(autoPlayTimer)
+  window.speechSynthesis?.cancel()
+  if (fcCurrentAudio) { fcCurrentAudio.pause(); fcCurrentAudio = null }
 })
 
 const currentIndex = computed(() => allLessons.value.findIndex(l => l.slug === route.params.lessonSlug))
@@ -996,4 +1607,11 @@ const markComplete = async () => {
 .lesson-content :deep(td) { padding: 0.55em 0.9em; border: 1px solid #e5e7eb; color: #374151; }
 .lesson-content :deep(a) { color: #4f46e5; text-decoration: underline; }
 .lesson-content :deep(hr) { border: none; border-top: 2px solid #e5e7eb; margin: 1.5em 0; }
+
+/* Flashcard 3D flip */
+.fc-perspective { perspective: 1000px; }
+.fc-card { transform-style: preserve-3d; }
+.fc-front, .fc-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.fc-back { transform: rotateY(180deg); }
+.fc-flipped { transform: rotateY(180deg); }
 </style>
