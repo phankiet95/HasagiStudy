@@ -83,7 +83,7 @@
                   Hoàn thành
                 </span>
                 <span v-else-if="progressPercent(course) > 0"
-                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-leaf-500 text-white shadow-sm">
+                  class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold dark-green-button shadow-sm">
                   Đang học
                 </span>
                 <span v-else
