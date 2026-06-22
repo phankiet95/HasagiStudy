@@ -22,7 +22,12 @@ const { validateSession } = useLmsStudent()
 onMounted(async () => {
   store.loadFromStorage()
 
-  if (!store.orgSlug) return navigateTo('/connect')
+  if (!store.orgSlug) {
+    // Preserve query params (e.g. ?org=xxx) — may be in window.location but hidden from
+    // route.query when the SW's navigateFallback serves / HTML instead of /connect
+    const query = Object.fromEntries(new URLSearchParams(window.location.search))
+    return navigateTo({ path: '/connect', query })
+  }
   if (!store.sessionToken) return navigateTo('/login')
 
   // Offline: trust the stored session and go straight to courses
