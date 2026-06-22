@@ -1330,22 +1330,58 @@ onMounted(async () => {
   if (!store.orgSlug) return navigateTo('/connect')
   if (!store.sessionToken) return navigateTo('/login')
 
-  if (!navigator.onLine) {
-    const key = `${store.orgSlug}/${route.params.courseSlug}/${route.params.lessonSlug}`
-    const offlineData = await getOfflineLesson(key)
-    if (offlineData) {
-      objectUrlMap = await getOfflineObjectUrls(key)
-      const data = applyObjectUrls(offlineData, objectUrlMap)
-      lesson.value = data.lesson
-      courseName.value = data.course?.title || ''
-      chapters.value = data.chapters || []
-      allLessons.value = data.allLessons || []
+  const key = `${store.orgSlug}/${route.params.courseSlug}/${route.params.lessonSlug}`
+
+  // Priority: use saved/downloaded data immediately (even when online)
+  const savedData = await getOfflineLesson(key)
+  if (savedData) {
+    objectUrlMap = await getOfflineObjectUrls(key)
+    const data = applyObjectUrls(savedData, objectUrlMap)
+    lesson.value = data.lesson
+    courseName.value = data.course?.title || ''
+    chapters.value = data.chapters || []
+    allLessons.value = data.allLessons || []
+    loading.value = false
+
+    if (!navigator.onLine) {
       isOfflineMode.value = true
+      return
     }
+
+    // Online + saved: fetch progress in background (no spinner)
+    try {
+      const validStudent = await withTimeout(validateSession(store.sessionToken), 5000)
+      if (!validStudent) { store.clearSession(); return navigateTo('/login') }
+      store.student = validStudent
+    } catch { /* network issue, keep showing saved content */ }
+
+    try {
+      const { completedLessonIds: ids, passedQuizLessonIds: passedIds } = await $fetch('/api/lms/student-progress', {
+        headers: { 'x-lms-session': store.sessionToken },
+      })
+      completedLessonIds.value = ids || []
+      passedQuizLessonIds.value = passedIds || []
+      isCompleted.value = ids.includes(lesson.value.id)
+    } catch { isCompleted.value = false }
+
+    try {
+      const { attempt } = await $fetch('/api/lms/quiz-attempt-latest', {
+        headers: { 'x-lms-session': store.sessionToken },
+        query: { lessonId: lesson.value.id },
+      })
+      lastQuizAttempt.value = attempt
+    } catch {}
+
+    return
+  }
+
+  // No saved data and offline → nothing to show
+  if (!navigator.onLine) {
     loading.value = false
     return
   }
 
+  // Online, no saved data → full API fetch
   try {
     const validStudent = await withTimeout(validateSession(store.sessionToken), 5000)
     if (!validStudent) {
@@ -1388,25 +1424,8 @@ onMounted(async () => {
       lastQuizAttempt.value = attempt
     } catch {}
   } catch (e) {
-    const isNetworkErr = (e?.message === 'network-timeout') || !navigator.onLine
-    if (isNetworkErr) {
-      const key = `${store.orgSlug}/${route.params.courseSlug}/${route.params.lessonSlug}`
-      const offlineData = await getOfflineLesson(key)
-      if (offlineData) {
-        objectUrlMap = await getOfflineObjectUrls(key)
-        const data = applyObjectUrls(offlineData, objectUrlMap)
-        lesson.value = data.lesson
-        courseName.value = data.course?.title || ''
-        chapters.value = data.chapters || []
-        allLessons.value = data.allLessons || []
-        isOfflineMode.value = true
-      } else {
-        lesson.value = null
-      }
-    } else {
-      console.error('[LessonDetail] Failed to load:', e)
-      lesson.value = null
-    }
+    console.error('[LessonDetail] Failed to load:', e)
+    lesson.value = null
   } finally {
     loading.value = false
   }
