@@ -1,5 +1,5 @@
 const DB_NAME = 'hasagi-study-offline'
-const DB_VERSION = 1
+const DB_VERSION = 2
 
 interface LessonEntry {
   key: string
@@ -38,7 +38,7 @@ const downloadStates = reactive<Record<string, DownloadState>>({})
 
 let dbPromise: Promise<IDBDatabase> | null = null
 
-function openDB(): Promise<IDBDatabase> {
+export function openDB(): Promise<IDBDatabase> {
   if (dbPromise) return dbPromise
   dbPromise = new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION)
@@ -50,6 +50,9 @@ function openDB(): Promise<IDBDatabase> {
       if (!db.objectStoreNames.contains('media')) {
         db.createObjectStore('media', { keyPath: 'url' })
       }
+      if (!db.objectStoreNames.contains('news')) {
+        db.createObjectStore('news', { keyPath: 'key' })
+      }
     }
     req.onsuccess = (e) => resolve((e.target as IDBOpenDBRequest).result)
     req.onerror = () => { dbPromise = null; reject(req.error) }
@@ -57,7 +60,7 @@ function openDB(): Promise<IDBDatabase> {
   return dbPromise
 }
 
-function idbGet<T>(store: IDBObjectStore, key: string): Promise<T | undefined> {
+export function idbGet<T>(store: IDBObjectStore, key: string): Promise<T | undefined> {
   return new Promise((resolve, reject) => {
     const req = store.get(key)
     req.onsuccess = () => resolve(req.result as T)
@@ -65,7 +68,7 @@ function idbGet<T>(store: IDBObjectStore, key: string): Promise<T | undefined> {
   })
 }
 
-function idbPut(store: IDBObjectStore, value: any): Promise<void> {
+export function idbPut(store: IDBObjectStore, value: any): Promise<void> {
   return new Promise((resolve, reject) => {
     const req = store.put(value)
     req.onsuccess = () => resolve()
@@ -81,7 +84,7 @@ function idbDelete(store: IDBObjectStore, key: string): Promise<void> {
   })
 }
 
-function idbGetAll<T>(store: IDBObjectStore): Promise<T[]> {
+export function idbGetAll<T>(store: IDBObjectStore): Promise<T[]> {
   return new Promise((resolve, reject) => {
     const req = store.getAll()
     req.onsuccess = () => resolve(req.result as T[])
