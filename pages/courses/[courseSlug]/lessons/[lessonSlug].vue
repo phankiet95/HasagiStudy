@@ -993,7 +993,7 @@
 
           <!-- 3D Flip Card -->
           <div class="w-full max-w-lg">
-            <div class="fc-perspective w-full cursor-pointer" style="height: clamp(180px, 40vw, 300px)" @click="flipCard">
+            <div class="fc-perspective w-full cursor-pointer" style="height: clamp(260px, 42vh, 440px)" @click="flipCard">
               <div class="fc-card w-full h-full relative transition-transform duration-500" :class="isFlipped ? 'fc-flipped' : ''">
                 <!-- Front: Term -->
                 <div class="fc-front absolute inset-0 bg-white rounded-2xl shadow-xl flex flex-col items-center justify-center p-6 gap-3">

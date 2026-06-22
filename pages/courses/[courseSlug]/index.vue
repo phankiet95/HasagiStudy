@@ -336,11 +336,13 @@
 import { useStudyStore } from '~/composables/useStudyStore'
 import { useLmsStudent } from '~/composables/useLmsStudent'
 import { useOfflineLesson, withTimeout } from '~/composables/useOfflineLesson'
+import { useCoursesCache } from '~/composables/useCoursesCache'
 
 const store = useStudyStore()
 const { validateSession } = useLmsStudent()
 const route = useRoute()
 const { downloadStates, downloadLesson, deleteOfflineLesson, initDownloadStates, getOfflineCourseData } = useOfflineLesson()
+const { getCourseDetail, saveCourseDetail } = useCoursesCache()
 
 const course = ref(null)
 const chapters = ref([])
@@ -372,10 +374,25 @@ onMounted(async () => {
   if (!store.orgSlug) return navigateTo('/connect')
   if (!store.sessionToken) return navigateTo('/login')
 
-  const isOffline = !navigator.onLine
-  if (isOffline) {
-    const loaded = await loadOfflineCourse()
-    if (!loaded) error.value = 'Không có kết nối mạng và chưa tải bài học nào cho khóa học này'
+  const courseParam = route.params.courseSlug
+
+  // Load from cache first — show instantly without spinner
+  try {
+    const cached = await getCourseDetail(store.orgSlug, courseParam)
+    if (cached) {
+      course.value = cached.course
+      chapters.value = cached.chapters
+      for (const ch of cached.chapters) openChapters.add(ch.id)
+      initDownloadStates(store.orgSlug, courseParam, cached.chapters.flatMap(ch => ch.lessons).map(l => l.slug))
+      loading.value = false
+    }
+  } catch { /* ignore cache errors */ }
+
+  if (!navigator.onLine) {
+    if (!course.value) {
+      const loaded = await loadOfflineCourse()
+      if (!loaded) error.value = 'Không có kết nối mạng và chưa tải bài học nào cho khóa học này'
+    }
     loading.value = false
     return
   }
@@ -388,7 +405,6 @@ onMounted(async () => {
     }
     store.student = validStudent
 
-    const courseParam = route.params.courseSlug
     const { course: courseData, chapters: chaptersData, lessons: lessonsData } = await withTimeout(
       $fetch('/api/lms/course-detail', {
         query: { orgSlug: store.orgSlug, courseSlug: courseParam },
@@ -404,10 +420,12 @@ onMounted(async () => {
       if (!lessonsById[l.chapter_id]) lessonsById[l.chapter_id] = []
       lessonsById[l.chapter_id].push(l)
     }
-    chapters.value = chaptersData.map(ch => ({ ...ch, lessons: lessonsById[ch.id] || [] }))
-    for (const ch of chapters.value) openChapters.add(ch.id)
+    const newChapters = chaptersData.map(ch => ({ ...ch, lessons: lessonsById[ch.id] || [] }))
+    chapters.value = newChapters
+    for (const ch of newChapters) openChapters.add(ch.id)
+    initDownloadStates(store.orgSlug, courseParam, lessonsData.map(l => l.slug))
 
-    initDownloadStates(store.orgSlug, route.params.courseSlug, lessonsData.map(l => l.slug))
+    saveCourseDetail(store.orgSlug, courseParam, courseData, newChapters).catch(() => {})
 
     try {
       const { completedLessonIds, passedQuizLessonIds } = await withTimeout(
@@ -425,15 +443,19 @@ onMounted(async () => {
   } catch (e) {
     const isNetworkErr = e?.message === 'network-timeout' || !navigator.onLine
     if (isNetworkErr) {
-      const loaded = await loadOfflineCourse()
-      if (!loaded) {
-        error.value = 'Không có kết nối mạng và chưa tải bài học nào cho khóa học này'
-        course.value = null
+      if (!course.value) {
+        const loaded = await loadOfflineCourse()
+        if (!loaded) {
+          error.value = 'Không có kết nối mạng và chưa tải bài học nào cho khóa học này'
+          course.value = null
+        }
       }
     } else {
       console.error('[CourseDetail] Failed to load:', e)
-      error.value = e?.data?.message || 'Có lỗi xảy ra khi tải khóa học'
-      course.value = null
+      if (!course.value) {
+        error.value = e?.data?.message || 'Có lỗi xảy ra khi tải khóa học'
+        course.value = null
+      }
     }
   } finally {
     loading.value = false
