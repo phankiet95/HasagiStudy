@@ -8,7 +8,7 @@
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
         </svg>
-        <p class="text-gray-400 text-sm">Đang tải bài học...</p>
+        <p class="text-gray-400 text-sm">{{ t('lesson.loading') }}</p>
       </div>
     </div>
 
@@ -19,13 +19,13 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
         </svg>
       </div>
-      <p class="text-gray-200 font-semibold text-lg">Không tìm thấy bài học</p>
-      <p class="text-gray-500 text-sm mt-1">Bài học không tồn tại hoặc bạn không có quyền truy cập.</p>
+      <p class="text-gray-200 font-semibold text-lg">{{ t('lesson.notFound') }}</p>
+      <p class="text-gray-500 text-sm mt-1">{{ t('lesson.notFoundDesc') }}</p>
       <NuxtLink :to="`/courses/${route.params.courseSlug}`" class="mt-5 inline-flex items-center gap-2 px-4 py-2.5 bg-leaf-500 text-white text-sm font-semibold rounded-xl">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
         </svg>
-        Quay lại khóa học
+        {{ t('lesson.backToCourse') }}
       </NuxtLink>
     </div>
 
@@ -56,7 +56,7 @@
             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M8.111 8.111A3 3 0 0012 15a3 3 0 003-3 3 3 0 00-.111-.889M21 12a9 9 0 01-9 9m-6.343-2.657A9 9 0 013 12c0-2.48 1.007-4.729 2.636-6.364" />
             </svg>
-            Offline
+            {{ t('lesson.offline') }}
           </div>
 
           <!-- Timer -->
@@ -1118,10 +1118,12 @@ useHead({ meta: [{ name: 'theme-color', content: '#013237' }] })
 import { useStudyStore } from '~/composables/useStudyStore'
 import { useLmsStudent } from '~/composables/useLmsStudent'
 import { useOfflineLesson, withTimeout } from '~/composables/useOfflineLesson'
+import { useAppLocale } from '~/composables/useAppLocale'
 
 const store = useStudyStore()
 const { validateSession } = useLmsStudent()
 const { getOfflineLesson, getOfflineObjectUrls, applyObjectUrls } = useOfflineLesson()
+const { t } = useAppLocale()
 const route = useRoute()
 
 const isOfflineMode = ref(false)

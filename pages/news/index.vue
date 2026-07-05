@@ -10,7 +10,7 @@
         </div>
         <div>
           <p class="text-[11px] font-semibold green-second uppercase tracking-widest">{{ store.orgName }}</p>
-          <h1 class="text-xl font-bold green-primary leading-tight">Tin tức</h1>
+          <h1 class="text-xl font-bold green-primary leading-tight">{{ t('news.title') }}</h1>
         </div>
       </div>
     </div>
@@ -20,8 +20,8 @@
       <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M8.111 8.111A3 3 0 0012 15a3 3 0 003-3 3 3 0 00-.111-.889M21 12a9 9 0 01-9 9m-6.343-2.657A9 9 0 013 12c0-2.48 1.007-4.729 2.636-6.364" />
       </svg>
-      <span class="font-medium">Đang xem offline</span>
-      <span class="text-amber-500 text-xs">— Chỉ hiển thị bài đã đọc</span>
+      <span class="font-medium">{{ t('news.offline') }}</span>
+      <span class="text-amber-500 text-xs">— {{ t('news.offlineNote') }}</span>
     </div>
 
     <!-- Loading -->
@@ -39,8 +39,8 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
         </svg>
       </div>
-      <p class="text-gray-600 font-semibold text-base">{{ isOffline ? 'Chưa có bài viết được lưu' : 'Chưa có tin tức nào' }}</p>
-      <p class="text-gray-400 text-sm mt-1.5 leading-relaxed">{{ isOffline ? 'Đọc bài viết khi có mạng để lưu offline' : 'Tổ chức chưa đăng tin tức nào' }}</p>
+      <p class="text-gray-600 font-semibold text-base">{{ isOffline ? t('news.emptyOffline') : t('news.empty') }}</p>
+      <p class="text-gray-400 text-sm mt-1.5 leading-relaxed">{{ isOffline ? t('news.emptyOfflineDesc') : t('news.emptyDesc') }}</p>
     </div>
 
     <!-- News list -->
@@ -59,15 +59,22 @@
             </div>
           </div>
           <!-- Featured badge -->
-          <div class="absolute top-3 left-3">
-            <span class="dark-green-button text-[11px] font-bold px-2.5 py-1 rounded-full shadow">Mới nhất</span>
+          <div class="absolute top-3 left-3 flex gap-1.5">
+            <span v-if="!news[0].read" class="dark-green-button text-[11px] font-bold px-2.5 py-1 rounded-full shadow">{{ t('news.latest') }}</span>
+            <span v-else class="flex items-center gap-1 text-[11px] font-semibold bg-white/90 text-gray-500 px-2.5 py-1 rounded-full shadow">
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+              {{ t('news.read') }}
+            </span>
           </div>
           <div v-if="news[0].cached" class="absolute top-3 right-3">
-            <span class="text-[10px] font-semibold bg-white/90 text-leaf-700 px-2 py-0.5 rounded-full border border-leaf-200 shadow-sm">Đã lưu</span>
+            <span class="text-[10px] font-semibold bg-white/90 text-leaf-700 px-2 py-0.5 rounded-full border border-leaf-200 shadow-sm">{{ t('news.saved') }}</span>
           </div>
         </div>
         <div class="p-4">
-          <h2 class="font-bold text-gray-900 text-base leading-snug mb-2 line-clamp-2">{{ news[0].title }}</h2>
+          <h2 class="text-base leading-snug mb-2 line-clamp-2"
+            :class="news[0].read ? 'font-medium text-gray-400' : 'font-bold text-gray-900'">{{ news[0].title }}</h2>
           <div class="flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5" />
@@ -79,7 +86,7 @@
 
       <!-- Remaining articles -->
       <div v-if="news.length > 1" class="space-y-3">
-        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-1">Tất cả bài viết</p>
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-1">{{ t('news.allArticles') }}</p>
         <NuxtLink
           v-for="item in news.slice(1)"
           :key="item.slug"
@@ -99,7 +106,8 @@
           <!-- Content -->
           <div class="flex-1 min-w-0 py-3 pr-3 flex flex-col justify-between">
             <div>
-              <p class="font-semibold text-gray-900 text-sm leading-snug line-clamp-2 mb-1.5">{{ item.title }}</p>
+              <p class="text-sm leading-snug line-clamp-2 mb-1.5"
+                :class="item.read ? 'font-medium text-gray-400' : 'font-semibold text-gray-900'">{{ item.title }}</p>
               <div class="flex items-center gap-1.5">
                 <svg class="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 9v7.5" />
@@ -107,8 +115,14 @@
                 <span class="text-[11px] text-gray-400">{{ formatDate(item.published_at) }}</span>
               </div>
             </div>
-            <div v-if="item.cached" class="mt-2">
-              <span class="text-[10px] font-semibold text-leaf-600 bg-leaf-50 px-2 py-0.5 rounded-full border border-leaf-200">Đã lưu offline</span>
+            <div class="mt-2 flex gap-1.5 flex-wrap">
+              <span v-if="item.read" class="flex items-center gap-0.5 text-[10px] font-semibold text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+                {{ t('news.read') }}
+              </span>
+              <span v-if="item.cached" class="text-[10px] font-semibold text-leaf-600 bg-leaf-50 px-2 py-0.5 rounded-full border border-leaf-200">{{ t('news.savedOffline') }}</span>
             </div>
           </div>
         </NuxtLink>
@@ -121,9 +135,13 @@
 <script setup>
 import { useStudyStore } from '~/composables/useStudyStore'
 import { useNewsCache } from '~/composables/useNewsCache'
+import { useNewsRead } from '~/composables/useNewsRead'
+import { useAppLocale } from '~/composables/useAppLocale'
 
 const store = useStudyStore()
 const { getCachedList, isArticleCached } = useNewsCache()
+const { isRead, refreshUnread } = useNewsRead()
+const { t } = useAppLocale()
 
 const news = ref([])
 const loading = ref(true)
@@ -140,7 +158,8 @@ onMounted(async () => {
   isOffline.value = !navigator.onLine
 
   if (!navigator.onLine) {
-    news.value = await getCachedList(store.orgSlug)
+    const cached = await getCachedList(store.orgSlug)
+    news.value = cached.map(item => ({ ...item, read: isRead(store.orgSlug, item.slug) }))
     loading.value = false
     return
   }
@@ -150,16 +169,19 @@ onMounted(async () => {
       query: { orgSlug: store.orgSlug },
     })
 
-    const withCache = await Promise.all(
+    const withMeta = await Promise.all(
       data.map(async (item) => ({
         ...item,
         cached: await isArticleCached(store.orgSlug, item.slug),
+        read: isRead(store.orgSlug, item.slug),
       }))
     )
-    news.value = withCache
+    news.value = withMeta
+    refreshUnread(store.orgSlug, data.length)
   } catch {
     isOffline.value = true
-    news.value = await getCachedList(store.orgSlug)
+    const cached = await getCachedList(store.orgSlug)
+    news.value = cached.map(item => ({ ...item, read: isRead(store.orgSlug, item.slug) }))
   } finally {
     loading.value = false
   }

@@ -8,7 +8,7 @@
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
         </svg>
-        <p class="text-gray-400 text-base">Đang tải khóa học...</p>
+        <p class="text-gray-400 text-base">{{ t('courseDetail.loading') }}</p>
       </div>
     </div>
 
@@ -19,13 +19,13 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
         </svg>
       </div>
-      <p class="text-gray-700 font-semibold text-lg">{{ error || 'Không tìm thấy khóa học' }}</p>
-      <p class="text-gray-400 text-sm mt-1">Khóa học không tồn tại hoặc bạn không có quyền truy cập.</p>
+      <p class="text-gray-700 font-semibold text-lg">{{ error || t('courseDetail.notFound') }}</p>
+      <p class="text-gray-400 text-sm mt-1">{{ t('courseDetail.notFoundDesc') }}</p>
       <NuxtLink to="/courses" class="mt-5 inline-flex items-center gap-2 px-4 py-2.5 bg-leaf-500 text-white text-sm font-semibold rounded-xl">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
         </svg>
-        Quay lại danh sách
+        {{ t('courseDetail.backToList') }}
       </NuxtLink>
     </div>
 
@@ -40,7 +40,7 @@
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
             </svg>
-            Khóa học của tôi
+            {{ t('courseDetail.myCourses') }}
           </NuxtLink>
 
           <!-- Responsive layout: stack on mobile, side-by-side on lg+ -->
@@ -67,26 +67,26 @@
                   <svg class="w-4 h-4 text-leaf-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776" />
                   </svg>
-                  {{ chapters.length }} chương
+                  {{ t('courseDetail.chapters', { count: chapters.length }) }}
                 </span>
                 <span class="flex items-center gap-1.5 text-base text-gray-500">
                   <svg class="w-4 h-4 text-leaf-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                   </svg>
-                  {{ totalLessons }} bài học
+                  {{ t('courseDetail.lessons', { count: totalLessons }) }}
                 </span>
                 <span class="flex items-center gap-1.5 text-base text-green-600 font-medium">
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  {{ completedCount }} đã hoàn thành
+                  {{ t('courseDetail.completedCount', { count: completedCount }) }}
                 </span>
               </div>
 
               <!-- Progress -->
               <div>
                 <div class="flex items-center justify-between text-sm text-gray-400 mb-1.5">
-                  <span>Tiến độ học tập</span>
+                  <span>{{ t('courseDetail.progress') }}</span>
                   <span class="font-semibold text-leaf-800">{{ overallPercent }}%</span>
                 </div>
                 <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -103,14 +103,14 @@
                   class="flex items-center justify-center gap-2 w-full py-3 dark-green-button font-semibold text-sm rounded-xl transition-all shadow-md"
                 >
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                  {{ completedCount === 0 ? 'Bắt đầu học' : 'Tiếp tục học' }}
+                  {{ completedCount === 0 ? t('courseDetail.start') : t('courseDetail.continue') }}
                 </NuxtLink>
                 <div v-else-if="overallPercent === 100"
                   class="flex items-center justify-center gap-2 w-full py-3 bg-green-50 text-green-700 font-semibold text-sm rounded-xl border border-green-200">
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                   </svg>
-                  Đã hoàn thành khóa học!
+                  {{ t('courseDetail.allCompleted') }}
                 </div>
               </div>
             </div>
@@ -124,15 +124,15 @@
         <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M8.111 8.111A3 3 0 0012 15a3 3 0 003-3 3 3 0 00-.111-.889M21 12a9 9 0 01-9 9m-6.343-2.657A9 9 0 013 12c0-2.48 1.007-4.729 2.636-6.364" />
         </svg>
-        <span class="font-medium">Đang xem offline</span>
-        <span class="text-amber-500 text-xs">— Tiến độ sẽ đồng bộ khi có kết nối</span>
+        <span class="font-medium">{{ t('courseDetail.offlineBanner') }}</span>
+        <span class="text-amber-500 text-xs">— {{ t('courseDetail.offlineNote') }}</span>
       </div>
 
       <!-- Chapter / lesson list -->
       <div class="max-w-5xl mx-auto px-4 py-4">
         <h2 class="text-base font-bold text-gray-900 mb-3">
-          Nội dung khóa học
-          <span class="text-gray-400 font-normal text-sm ml-1">{{ chapters.length }} chương · {{ totalLessons }} bài</span>
+          {{ t('courseDetail.content') }}
+          <span class="text-gray-400 font-normal text-sm ml-1">{{ t('courseDetail.contentMeta', { chapters: chapters.length, lessons: totalLessons }) }}</span>
         </h2>
 
         <div class="space-y-3">
@@ -150,7 +150,7 @@
               <div class="flex-1 min-w-0">
                 <p class="font-semibold text-gray-900 text-sm leading-snug">{{ chapter.title }}</p>
                 <p class="text-xs text-gray-400 mt-0.5">
-                  {{ chapterCompletedCount(chapter) }}/{{ chapter.lessons.length }} bài hoàn thành
+                  {{ t('courseDetail.chapterProgress', { completed: chapterCompletedCount(chapter), total: chapter.lessons.length }) }}
                 </p>
               </div>
               <!-- Mini progress -->
@@ -169,7 +169,7 @@
             <!-- Lessons -->
             <div v-show="openChapters.has(chapter.id)" class="border-t border-gray-100">
               <div v-if="chapter.lessons.length === 0" class="px-4 py-3 text-sm text-gray-400 italic">
-                Chương chưa có bài học.
+                {{ t('courseDetail.emptyChapter') }}
               </div>
               <div v-for="(lesson, lIdx) in chapter.lessons" :key="lesson.id" class="border-b border-gray-50 last:border-b-0">
                 <!-- Lesson row -->
@@ -195,11 +195,11 @@
                     <p class="text-xs text-gray-400 mt-0.5">Bài {{ lIdx + 1 }}</p>
                   </div>
 
-                  <!-- Download button -->
-                  <button @click.prevent="handleDownload(lesson)"
+                  <!-- Download button (hidden when admin disables offline) -->
+                  <button v-if="offlineEnabled" @click.prevent="handleDownload(lesson)"
                     class="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg transition-colors"
                     :class="dlState(lesson.slug).status === 'done' ? 'text-leaf-500 hover:bg-leaf-50' : 'text-gray-400 hover:bg-gray-100'"
-                    :title="dlState(lesson.slug).status === 'done' ? 'Đã tải — nhấn để xóa' : 'Tải trước bài học'"
+                    :title="dlState(lesson.slug).status === 'done' ? t('courseDetail.downloadedHint') : t('courseDetail.downloadHint')"
                   >
                     <!-- Idle: download -->
                     <svg v-if="dlState(lesson.slug).status === 'idle'" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
@@ -243,7 +243,7 @@
                     <svg v-else class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                     </svg>
-                    {{ lesson.metadata?.lesson_type === 'flashcard' ? 'Học Flashcard' : 'Bài Học' }}
+                    {{ lesson.metadata?.lesson_type === 'flashcard' ? t('courseDetail.studyFlashcard') : t('courseDetail.lesson') }}
                   </NuxtLink>
 
                   <NuxtLink
@@ -258,7 +258,7 @@
                     <svg v-else class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
                     </svg>
-                    Bài Tập
+                    {{ t('courseDetail.quiz') }}
                     <span class="hidden ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
                       :class="passedQuizIds.has(lesson.id) ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'">
                       {{ lesson.metadata.quiz.quizQuestionList.length }}
@@ -304,10 +304,10 @@
             </div>
 
             <!-- Text -->
-            <h3 class="text-base font-bold text-gray-900 mb-1">Xóa khỏi bộ nhớ offline?</h3>
+            <h3 class="text-base font-bold text-gray-900 mb-1">{{ t('courseDetail.deleteTitle') }}</h3>
             <p class="text-sm text-gray-500 leading-relaxed">
-              Bài <span class="font-semibold text-gray-700">"{{ deleteDialog.lesson?.title }}"</span>
-              sẽ bị xóa. Bạn vẫn có thể xem lại khi có mạng.
+              <span class="font-semibold text-gray-700">"{{ deleteDialog.lesson?.title }}"</span>
+              {{ t('courseDetail.deleteDesc') }}
             </p>
 
             <!-- Actions -->
@@ -316,13 +316,13 @@
                 @click="deleteDialog.show = false"
                 class="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
               >
-                Hủy
+                {{ t('courseDetail.deleteCancel') }}
               </button>
               <button
                 @click="confirmDelete"
                 class="flex-1 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition-colors shadow-sm"
               >
-                Xóa
+                {{ t('courseDetail.deleteConfirm') }}
               </button>
             </div>
           </div>
@@ -337,12 +337,14 @@ import { useStudyStore } from '~/composables/useStudyStore'
 import { useLmsStudent } from '~/composables/useLmsStudent'
 import { useOfflineLesson, withTimeout } from '~/composables/useOfflineLesson'
 import { useCoursesCache } from '~/composables/useCoursesCache'
+import { useAppLocale } from '~/composables/useAppLocale'
 
 const store = useStudyStore()
 const { validateSession } = useLmsStudent()
 const route = useRoute()
 const { downloadStates, downloadLesson, deleteOfflineLesson, initDownloadStates, getOfflineCourseData } = useOfflineLesson()
 const { getCourseDetail, saveCourseDetail } = useCoursesCache()
+const { t } = useAppLocale()
 
 const course = ref(null)
 const chapters = ref([])
@@ -352,6 +354,7 @@ const loading = ref(true)
 const error = ref('')
 const openChapters = reactive(new Set())
 const isOfflineMode = ref(false)
+const offlineEnabled = ref(true)
 
 const loadOfflineCourse = async () => {
   const courseParam = route.params.courseSlug
@@ -391,7 +394,7 @@ onMounted(async () => {
   if (!navigator.onLine) {
     if (!course.value) {
       const loaded = await loadOfflineCourse()
-      if (!loaded) error.value = 'Không có kết nối mạng và chưa tải bài học nào cho khóa học này'
+      if (!loaded) error.value = t('courseDetail.noNetwork')
     }
     loading.value = false
     return
@@ -405,13 +408,14 @@ onMounted(async () => {
     }
     store.student = validStudent
 
-    const { course: courseData, chapters: chaptersData, lessons: lessonsData } = await withTimeout(
+    const { course: courseData, chapters: chaptersData, lessons: lessonsData, offlineEnabled: offlineEnabledData } = await withTimeout(
       $fetch('/api/lms/course-detail', {
         query: { orgSlug: store.orgSlug, courseSlug: courseParam },
         headers: { 'x-lms-session': store.sessionToken },
       }),
       8000,
     )
+    offlineEnabled.value = offlineEnabledData ?? true
 
     course.value = courseData
 

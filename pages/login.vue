@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen green-background  flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
+  <div class="min-h-screen green-background flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
 
     <!-- Background blobs -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
@@ -12,7 +12,6 @@
 
       <!-- Org identity block -->
       <div class="flex flex-col items-center mb-7">
-        <!-- Logo -->
         <div class="relative mb-4">
           <div class="w-24 h-24 rounded-3xl overflow-hidden bg-white/10 backdrop-blur-sm border border-white/20 shadow-2xl flex items-center justify-center">
             <img v-if="store.orgLogo" :src="store.orgLogo" class="w-full h-full object-contain p-1.5" />
@@ -22,23 +21,22 @@
           </div>
         </div>
 
-        <p class="green-primary text-[11px] font-semibold tracking-[0.18em] uppercase mb-1">Học viên</p>
+        <p class="green-primary text-[11px] font-semibold tracking-[0.18em] uppercase mb-1">{{ t('login.student') }}</p>
         <h2 class="green-primary font-bold text-2xl text-center leading-snug">{{ store.orgName }}</h2>
       </div>
 
       <!-- Login card -->
       <div class="bg-white rounded-3xl shadow-s shadow-black/40 overflow-hidden">
-        <!-- Card top accent -->
         <div class="h-1 bg-gradient-to-r from-leaf-500 via-leaf-500 to-leaf-800" />
 
         <div class="p-7">
-          <h1 class="text-lg font-bold text-gray-900 mb-0.5">Đăng nhập</h1>
-          <p class="text-gray-400 text-sm mb-6">Nhập tài khoản học viên của bạn</p>
+          <h1 class="text-lg font-bold text-gray-900 mb-0.5">{{ t('login.title') }}</h1>
+          <p class="text-gray-400 text-sm mb-6">{{ t('login.subtitle') }}</p>
 
           <div class="space-y-4">
             <!-- Username -->
             <div>
-              <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Tên đăng nhập</label>
+              <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{{ t('login.username') }}</label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                   <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -48,7 +46,7 @@
                 <input
                   v-model="username"
                   type="text"
-                  placeholder="Nhập tên đăng nhập"
+                  :placeholder="t('login.usernamePlaceholder')"
                   autocomplete="username"
                   @keyup.enter="$refs.pwdRef.focus()"
                   class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-leaf-500/40 focus:border-leaf-400 focus:bg-white transition-all"
@@ -58,7 +56,7 @@
 
             <!-- Password -->
             <div>
-              <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Mật khẩu</label>
+              <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{{ t('login.password') }}</label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                   <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -109,7 +107,7 @@
             <button
               @click="handleLogin"
               :disabled="loading || !username.trim() || !password"
-              class="w-full py-3.5 dark-green-button font-semibold rounded-xl text-sm hover:from-leaf-700 hover:to-leaf-700 active:scale-[0.98] transition-all shadow-lg shadow-leaf-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2 mt-1"
+              class="w-full py-3.5 dark-green-button font-semibold rounded-xl text-sm active:scale-[0.98] transition-all shadow-lg shadow-leaf-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none flex items-center justify-center gap-2 mt-1"
             >
               <svg v-if="loading" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -118,7 +116,7 @@
               <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
               </svg>
-              {{ loading ? 'Đang đăng nhập...' : 'Đăng nhập' }}
+              {{ loading ? t('login.signingIn') : t('login.signIn') }}
             </button>
           </div>
         </div>
@@ -126,17 +124,22 @@
 
       <!-- Change org -->
       <div class="flex items-center justify-center mt-6 gap-1.5">
-        <span class="green-primary text-sm">Không phải tổ chức của bạn?</span>
+        <span class="green-primary text-sm">{{ t('login.notYourOrg') }}</span>
         <button
           @click="navigateTo('/connect')"
           class="text-leaf-300 hover:text-white text-sm font-semibold transition-colors"
         >
-          Đổi tổ chức
+          {{ t('login.changeOrg') }}
         </button>
       </div>
 
+      <!-- Language switcher -->
+      <div class="mt-6">
+        <LanguageSwitcher />
+      </div>
+
       <!-- Branding -->
-      <p class="text-center green-primary text-[10px] mt-8 tracking-wider">Powered by HasagiAI</p>
+      <p class="text-center green-primary text-[10px] mt-6 tracking-wider">{{ t('login.poweredBy') }}</p>
     </div>
   </div>
 </template>
@@ -147,9 +150,11 @@ useHead({ meta: [{ name: 'theme-color', content: '#cdeacd' }] })
 
 import { useStudyStore } from '~/composables/useStudyStore'
 import { useLmsStudent } from '~/composables/useLmsStudent'
+import { useAppLocale } from '~/composables/useAppLocale'
 
 const store = useStudyStore()
 const { login } = useLmsStudent()
+const { t } = useAppLocale()
 
 const username = ref('')
 const password = ref('')
@@ -170,7 +175,7 @@ const handleLogin = async () => {
     store.setSession(sessionToken, student)
     navigateTo('/courses')
   } catch (err) {
-    error.value = err?.data?.statusMessage || err?.data?.message || 'Tên đăng nhập hoặc mật khẩu không đúng'
+    error.value = err?.data?.statusMessage || err?.data?.message || t('login.errorInvalid')
   }
   loading.value = false
 }

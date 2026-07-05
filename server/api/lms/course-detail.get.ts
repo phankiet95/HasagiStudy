@@ -23,11 +23,13 @@ export default defineEventHandler(async (event) => {
 
   const { data: org } = await supabase
     .from('lms_organizations')
-    .select('id')
+    .select('id, page_config')
     .eq('slug', orgSlug)
     .single()
 
   if (!org) throw createError({ statusCode: 404, message: 'Organization not found' })
+
+  const offlineEnabled = org.page_config?.app?.offlineEnabled ?? true
 
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(courseSlug)
   const { data: course, error: courseError } = await supabase
@@ -48,5 +50,6 @@ export default defineEventHandler(async (event) => {
     course,
     chapters: chapters || [],
     lessons: lessons || [],
+    offlineEnabled,
   }
 })

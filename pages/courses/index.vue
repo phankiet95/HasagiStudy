@@ -6,7 +6,7 @@
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
       </svg>
-      <p class="text-gray-400 text-base">Đang tải khóa học...</p>
+      <p class="text-gray-400 text-base">{{ t('courses.loading') }}</p>
     </div>
 
     <template v-else>
@@ -19,30 +19,41 @@
           </div>
           <div class="flex-1 min-w-0">
             <p class="text-xs text-gray-500">{{ store.orgName }}</p>
-            <p class="font-semibold text-gray-900 text-base">Xin chào, {{ store.student?.fullName }} 👋</p>
+            <p class="font-semibold text-gray-900 text-base">{{ t('courses.greeting', { name: store.student?.fullName?.split(' ').at(-1) || store.student?.fullName || '' }) }}</p>
           </div>
         </div>
 
         <!-- Stats row -->
         <div class="grid grid-cols-3 gap-2.5">
           <div class="bg-gray-50 rounded-2xl px-3 py-3 border border-gray-100">
-            <p class="text-gray-400 text-xs mb-0.5">Tổng khóa học</p>
+            <p class="text-gray-400 text-xs mb-0.5">{{ t('courses.total') }}</p>
             <p class="text-gray-800 text-xl font-bold">{{ courses.length }}</p>
           </div>
           <div class="bg-gray-50 rounded-2xl px-3 py-3 border border-gray-100">
-            <p class="text-gray-400 text-xs mb-0.5">Đang học</p>
+            <p class="text-gray-400 text-xs mb-0.5">{{ t('courses.inProgress') }}</p>
             <p class="text-gray-800 text-xl font-bold">{{ inProgressCount }}</p>
           </div>
           <div class="bg-gray-50 rounded-2xl px-3 py-3 border border-gray-100">
-            <p class="text-gray-400 text-xs mb-0.5">Hoàn thành</p>
+            <p class="text-gray-400 text-xs mb-0.5">{{ t('courses.completed') }}</p>
             <p class="text-gray-800 text-xl font-bold">{{ completedCount }}</p>
           </div>
         </div>
       </div>
 
+      <!-- App disabled notice -->
+      <div v-if="!appEnabled" class="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
+        <div class="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center mb-4">
+          <svg class="w-8 h-8 text-amber-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+        </div>
+        <p class="text-base font-bold text-gray-800">{{ t('courses.appDisabledTitle') }}</p>
+        <p class="text-sm text-gray-500 mt-1.5 leading-relaxed max-w-xs">{{ t('courses.appDisabledDesc') }}</p>
+      </div>
+
       <!-- Course list -->
-      <div class="px-4 py-4">
-        <h2 class="text-base font-bold text-gray-800 mb-3">Khóa học của tôi</h2>
+      <div v-else class="px-4 py-4">
+        <h2 class="text-base font-bold text-gray-800 mb-3">{{ t('courses.myCourses') }}</h2>
 
         <!-- Empty state -->
         <div v-if="courses.length === 0"
@@ -52,8 +63,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0118 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
             </svg>
           </div>
-          <p class="text-gray-700 font-semibold text-lg">Chưa có khóa học nào</p>
-          <p class="text-gray-400 text-sm mt-1">Liên hệ giáo viên để được phân công khóa học</p>
+          <p class="text-gray-700 font-semibold text-lg">{{ t('courses.empty') }}</p>
+          <p class="text-gray-400 text-sm mt-1">{{ t('courses.emptyDesc') }}</p>
         </div>
 
         <!-- Course cards -->
@@ -80,15 +91,15 @@
                   <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/>
                   </svg>
-                  Hoàn thành
+                  {{ t('courses.statusCompleted') }}
                 </span>
                 <span v-else-if="progressPercent(course) > 0"
                   class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold dark-green-button shadow-sm">
-                  Đang học
+                  {{ t('courses.statusInProgress') }}
                 </span>
                 <span v-else
                   class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/90 text-gray-600 shadow-sm">
-                  Chưa bắt đầu
+                  {{ t('courses.statusNotStarted') }}
                 </span>
               </div>
             </div>
@@ -106,7 +117,7 @@
               <!-- Progress -->
               <div class="mt-3 pt-3 border-t border-gray-50">
                 <div class="flex justify-between text-sm text-gray-400 mb-1.5">
-                  <span>{{ course.completedLessons }}/{{ course.totalLessons }} bài học</span>
+                  <span>{{ t('courses.xOfY', { completed: course.completedLessons, total: course.totalLessons }) }}</span>
                   <span class="font-semibold" :class="progressPercent(course) === 100 ? 'text-green-500' : 'text-leaf-500'">
                     {{ progressPercent(course) }}%
                   </span>
@@ -131,7 +142,7 @@
                   <svg v-else class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
                   </svg>
-                  {{ progressPercent(course) === 100 ? 'Xem lại' : progressPercent(course) > 0 ? 'Tiếp tục học' : 'Bắt đầu học' }}
+                  {{ progressPercent(course) === 100 ? t('courses.review') : progressPercent(course) > 0 ? t('courses.continue') : t('courses.start') }}
                 </span>
               </div>
             </div>
@@ -146,13 +157,16 @@
 import { useStudyStore } from '~/composables/useStudyStore'
 import { useLmsStudent } from '~/composables/useLmsStudent'
 import { useCoursesCache } from '~/composables/useCoursesCache'
+import { useAppLocale } from '~/composables/useAppLocale'
 
 const store = useStudyStore()
 const { validateSession } = useLmsStudent()
 const { getCourses, saveCourses } = useCoursesCache()
+const { t } = useAppLocale()
 
 const courses = ref([])
 const loading = ref(true)
+const appEnabled = ref(true)
 
 const firstName = computed(() => store.student?.fullName?.split(' ').at(-1) || store.student?.fullName || '')
 const progressPercent = (c) => c.totalLessons ? Math.round((c.completedLessons / c.totalLessons) * 100) : 0
@@ -187,10 +201,11 @@ onMounted(async () => {
     }
     store.student = student
 
-    const { courses: data } = await $fetch('/api/lms/student-courses', {
+    const { courses: data, appEnabled: enabled } = await $fetch('/api/lms/student-courses', {
       headers: { 'x-lms-session': store.sessionToken },
     })
     courses.value = data
+    appEnabled.value = enabled ?? true
     saveCourses(store.orgSlug, data).catch(() => {})
   } catch {
     // Network error — already showing cached data

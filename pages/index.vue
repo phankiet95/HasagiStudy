@@ -5,7 +5,7 @@
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
       </svg>
-      <p class="text-gray-400 text-sm">Đang khởi động...</p>
+      <p class="text-gray-400 text-sm">{{ t('splash.loading') }}</p>
     </div>
   </div>
 </template>
@@ -15,6 +15,8 @@ definePageMeta({ layout: 'blank' })
 
 import { useStudyStore } from '~/composables/useStudyStore'
 import { useLmsStudent } from '~/composables/useLmsStudent'
+import { useAppLocale } from '~/composables/useAppLocale'
+const { t } = useAppLocale()
 
 const store = useStudyStore()
 const { validateSession } = useLmsStudent()

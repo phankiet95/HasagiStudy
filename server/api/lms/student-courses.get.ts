@@ -13,6 +13,10 @@ export default defineEventHandler(async (event) => {
   if (!session)
     throw createError({ statusCode: 401, statusMessage: 'Session không hợp lệ' })
 
+  const { data: org } = await supabase
+    .from('lms_organizations').select('page_config').eq('id', session.org_id).single()
+  const appEnabled = org?.page_config?.app?.appEnabled ?? true
+
   const { data: enrollments, error } = await supabase
     .from('lms_course_enrollments')
     .select('course_id, enrolled_at, lms_courses!inner(id, slug, title, description, cover_url, sort_order, is_published, lms_lessons(id))')
@@ -38,5 +42,5 @@ export default defineEventHandler(async (event) => {
   })
 
   courses.sort((a: any, b: any) => a.sortOrder - b.sortOrder)
-  return { courses }
+  return { courses, appEnabled }
 })

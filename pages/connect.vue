@@ -7,21 +7,21 @@
         <img src="/icons/favicon.png" class="w-full h-full object-contain p-2" />
       </div>
       <h1 class="text-3xl font-bold green-primary">Hasagi Study</h1>
-      <p class="green-second text-base mt-1">Kết nối với tổ chức của bạn</p>
+      <p class="green-second text-base mt-1">{{ t('connect.subtitle') }}</p>
     </div>
 
     <!-- Input card -->
     <div class="w-full max-w-sm bg-white rounded-3xl shadow-s p-6">
 
       <template v-if="!orgFound">
-        <h2 class="text-lg font-bold text-gray-900 mb-1">Nhập ID tổ chức</h2>
-        <p class="text-gray-500 text-sm mb-5">Nhập mã ID từ giáo viên hoặc admin của bạn</p>
+        <h2 class="text-lg font-bold text-gray-900 mb-1">{{ t('connect.enterIdTitle') }}</h2>
+        <p class="text-gray-500 text-sm mb-5">{{ t('connect.enterIdDesc') }}</p>
 
         <div class="relative mb-4">
           <input
             v-model="slugInput"
             type="text"
-            placeholder="vd: truong-abc"
+            :placeholder="t('connect.placeholder')"
             @keyup.enter="connectOrg"
             class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 text-base focus:outline-none focus:ring-2 focus:ring-leaf-500 focus:border-transparent transition-all"
           />
@@ -32,24 +32,24 @@
         <button
           @click="connectOrg"
           :disabled="connecting || !slugInput.trim()"
-          class="w-full py-3.5 dark-green-button font-semibold rounded-xl text-base hover:from-leaf-700 hover:to-leaf-700 transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          class="w-full py-3.5 dark-green-button font-semibold rounded-xl text-base transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           <svg v-if="connecting" class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
           </svg>
-          {{ connecting ? 'Đang tìm kiếm...' : 'Kết nối' }}
+          {{ connecting ? t('connect.connecting') : t('connect.connect') }}
         </button>
 
         <button
-          class="w-full mt-3 py-3 border border-gray-200 text-gray-400 font-medium rounded-xl text-sm flex items-center justify-center gap-2 cursor-not-allowed"
+          class="hidden w-full mt-3 py-3 border border-gray-200 text-gray-400 font-medium rounded-xl text-sm flex items-center justify-center gap-2 cursor-not-allowed"
           disabled
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
           </svg>
-          Quét mã QR (sắp ra mắt)
+          {{ t('connect.scanQr') }}
         </button>
       </template>
 
@@ -66,23 +66,28 @@
             <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd"/>
             </svg>
-            Đã xác nhận
+            {{ t('connect.confirmed') }}
           </span>
         </div>
 
         <button
           @click="confirmOrg"
-          class="w-full py-3.5 dark-green-button text-white font-semibold rounded-xl text-base hover:from-leaf-700 hover:to-leaf-700 transition-all shadow-md mb-3"
+          class="w-full py-3.5 dark-green-button text-white font-semibold rounded-xl text-base transition-all shadow-md mb-3"
         >
-          Tiếp tục đăng nhập
+          {{ t('connect.continueLogin') }}
         </button>
         <button
           @click="resetForm"
           class="w-full py-3 text-gray-500 font-medium text-sm hover:text-gray-700 transition-colors"
         >
-          Nhập ID tổ chức khác
+          {{ t('connect.changeId') }}
         </button>
       </template>
+    </div>
+
+    <!-- Language switcher -->
+    <div class="mt-8">
+      <LanguageSwitcher />
     </div>
   </div>
 </template>
@@ -92,8 +97,10 @@ definePageMeta({ layout: 'blank' })
 useHead({ meta: [{ name: 'theme-color', content: '#cdeacd' }] })
 
 import { useStudyStore } from '~/composables/useStudyStore'
+import { useAppLocale } from '~/composables/useAppLocale'
 
 const store = useStudyStore()
+const { t } = useAppLocale()
 const $supabase = useSupabaseClient()
 
 const slugInput = ref('')
@@ -125,13 +132,13 @@ const connectOrg = async () => {
       .eq('slug', slug)
       .single()
     if (supaErr || !data) {
-      error.value = 'Không tìm thấy tổ chức với slug này. Vui lòng kiểm tra lại.'
+      error.value = t('connect.errorNotFound')
     } else {
       orgData.value = { ...data, slug }
       orgFound.value = true
     }
   } catch {
-    error.value = 'Có lỗi xảy ra. Vui lòng thử lại.'
+    error.value = t('connect.errorGeneral')
   }
   connecting.value = false
 }

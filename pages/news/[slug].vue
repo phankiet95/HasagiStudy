@@ -18,14 +18,14 @@
         </div>
         <div class="flex-1 min-w-0">
           <p class="text-[11px] font-semibold green-second uppercase tracking-widest truncate">{{ store.orgName }}</p>
-          <h1 class="text-xl font-bold green-primary leading-tight">Tin tức</h1>
+          <h1 class="text-xl font-bold green-primary leading-tight">{{ t('newsDetail.title') }}</h1>
         </div>
 
         <div v-if="isOfflineMode" class="flex items-center gap-1 px-2 py-1 bg-amber-500/20 text-amber-600 text-xs font-semibold rounded-full border border-amber-500/30 flex-shrink-0">
           <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M8.111 8.111A3 3 0 0012 15a3 3 0 003-3 3 3 0 00-.111-.889M21 12a9 9 0 01-9 9m-6.343-2.657A9 9 0 013 12c0-2.48 1.007-4.729 2.636-6.364" />
           </svg>
-          Offline
+          {{ t('newsDetail.offline') }}
         </div>
       </div>
     </div>
@@ -45,13 +45,13 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
         </svg>
       </div>
-      <p class="text-gray-700 font-semibold">Không tìm thấy bài viết</p>
-      <p class="text-gray-400 text-sm mt-1 leading-relaxed">{{ isOfflineMode ? 'Bài viết này chưa được lưu offline' : 'Bài viết không tồn tại hoặc chưa được đăng' }}</p>
+      <p class="text-gray-700 font-semibold">{{ t('newsDetail.notFound') }}</p>
+      <p class="text-gray-400 text-sm mt-1 leading-relaxed">{{ isOfflineMode ? t('newsDetail.notFoundOffline') : t('newsDetail.notFoundOnline') }}</p>
       <NuxtLink to="/news" class="mt-5 inline-flex items-center gap-2 px-4 py-2.5 dark-green-button text-sm font-semibold rounded-xl">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
         </svg>
-        Về trang tin tức
+        {{ t('newsDetail.backToNews') }}
       </NuxtLink>
     </div>
 
@@ -129,10 +129,14 @@
 <script setup>
 import { useStudyStore } from '~/composables/useStudyStore'
 import { useNewsCache, applyNewsObjectUrls } from '~/composables/useNewsCache'
+import { useNewsRead } from '~/composables/useNewsRead'
+import { useAppLocale } from '~/composables/useAppLocale'
 
 const route = useRoute()
 const store = useStudyStore()
 const { getArticleWithMedia, saveArticle } = useNewsCache()
+const { markAsRead } = useNewsRead()
+const { t } = useAppLocale()
 
 const article = ref(null)
 const loading = ref(true)
@@ -163,6 +167,7 @@ onMounted(async () => {
       const { content, cover_url } = applyNewsObjectUrls(cached.article.content, cached.article.cover_url, objectUrls)
       article.value = { ...cached.article, content, cover_url }
       isOfflineMode.value = true
+      markAsRead(store.orgSlug, slug)
     }
     loading.value = false
     return
@@ -173,6 +178,7 @@ onMounted(async () => {
       query: { orgSlug: store.orgSlug, slug },
     })
     article.value = data
+    markAsRead(store.orgSlug, slug)
     saveArticle(store.orgSlug, data)
   } catch {
     const cached = await getArticleWithMedia(store.orgSlug, slug)
