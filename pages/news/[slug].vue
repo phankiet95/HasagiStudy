@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-white flex flex-col">
+  <div class="min-h-screen bg-white flex flex-col overflow-x-hidden">
 
     <!-- Header -->
     <div class="green-background px-4 pt-6 pb-5">
@@ -76,7 +76,7 @@
             <span class="text-white/40">·</span>
             <span class="text-white/60 text-xs">{{ formatDate(article.published_at) }}</span>
           </div>
-          <h1 class="text-white text-xl sm:text-2xl font-bold leading-snug drop-shadow-lg">{{ article.title }}</h1>
+          <h1 class="text-white text-xl sm:text-2xl font-bold leading-snug drop-shadow-lg break-words">{{ article.title }}</h1>
         </div>
       </div>
 
@@ -91,7 +91,7 @@
           <span class="text-gray-400">·</span>
           <span class="text-xs green-second opacity-70">{{ formatDate(article.published_at) }}</span>
         </div>
-        <h1 class="text-2xl font-bold green-primary leading-snug">{{ article.title }}</h1>
+        <h1 class="text-2xl font-bold green-primary leading-snug break-words">{{ article.title }}</h1>
       </div>
 
       <!-- Meta strip (only shown when cover exists, since meta is in header otherwise) -->

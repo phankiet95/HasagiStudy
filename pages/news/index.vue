@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gray-50 overflow-x-hidden">
 
     <!-- Header -->
     <div class="green-background px-4 pt-6 pb-5">
@@ -73,7 +73,7 @@
           </div>
         </div>
         <div class="p-4">
-          <h2 class="text-base leading-snug mb-2 line-clamp-2"
+          <h2 class="text-base leading-snug mb-2 line-clamp-2 break-words"
             :class="news[0].read ? 'font-medium text-gray-400' : 'font-bold text-gray-900'">{{ news[0].title }}</h2>
           <div class="flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -106,7 +106,7 @@
           <!-- Content -->
           <div class="flex-1 min-w-0 py-3 pr-3 flex flex-col justify-between">
             <div>
-              <p class="text-sm leading-snug line-clamp-2 mb-1.5"
+              <p class="text-sm leading-snug line-clamp-2 mb-1.5 break-words"
                 :class="item.read ? 'font-medium text-gray-400' : 'font-semibold text-gray-900'">{{ item.title }}</p>
               <div class="flex items-center gap-1.5">
                 <svg class="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">

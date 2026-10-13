@@ -164,6 +164,31 @@
                   </button>
                 </div>
 
+                <!-- Practice games -->
+                <div v-if="flashcards.length" class="mb-6">
+                  <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Trò chơi luyện tập</h3>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <button v-for="game in studyGames" :key="game.key" @click="game.enabled && game.start()"
+                      :disabled="!game.enabled" :class="[
+                        'text-left rounded-2xl p-3 border-2 transition-all',
+                        game.enabled
+                          ? 'bg-white border-gray-100 shadow-sm active:scale-[0.98]'
+                          : 'bg-gray-50 border-gray-100 opacity-60 cursor-not-allowed'
+                      ]">
+                      <div class="flex items-start gap-3">
+                        <div :class="['w-10 h-10 rounded-xl flex items-center justify-center text-xl flex-shrink-0 bg-gradient-to-br', game.tint]">
+                          {{ game.icon }}
+                        </div>
+                        <div class="min-w-0">
+                          <p class="font-bold text-gray-900 text-sm">{{ game.name }}</p>
+                          <p class="text-xs text-gray-500 leading-snug mt-0.5">{{ game.description }}</p>
+                          <p v-if="!game.enabled" class="text-[11px] text-rose-400 font-semibold mt-1">{{ game.requirement }}</p>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
                 <!-- Card grid -->
                 <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Danh sách thẻ ({{ flashcards.length }})</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1109,6 +1134,44 @@
       </div>
     </Transition>
   </Teleport>
+
+  <!-- Practice games — each runs in place, fullscreen over this lesson -->
+  <Teleport to="body">
+    <div v-if="showQuizGame" class="fixed inset-0 z-50 overflow-y-auto">
+      <FlashcardQuizGame :questions="fcQuizQuestions" :project-name="lesson?.title || ''" @exit="showQuizGame = false" />
+    </div>
+  </Teleport>
+
+  <Teleport to="body">
+    <div v-if="showMatchingGame" class="fixed inset-0 z-50 overflow-y-auto">
+      <FlashcardMatchingGame :pairs="matchingPairs" :project-name="lesson?.title || ''" @exit="showMatchingGame = false" />
+    </div>
+  </Teleport>
+
+  <Teleport to="body">
+    <div v-if="showTypingGame" class="fixed inset-0 z-50 overflow-y-auto">
+      <FlashcardTypingGame :cards="typableCards" :project-name="lesson?.title || ''" @exit="showTypingGame = false" />
+    </div>
+  </Teleport>
+
+  <Teleport to="body">
+    <div v-if="showTrueFalseGame" class="fixed inset-0 z-50 overflow-y-auto">
+      <FlashcardTrueFalseGame :cards="matchingPairs" :project-name="lesson?.title || ''" @exit="showTrueFalseGame = false" />
+    </div>
+  </Teleport>
+
+  <Teleport to="body">
+    <div v-if="showListeningGame" class="fixed inset-0 z-50 overflow-y-auto">
+      <FlashcardListeningGame :cards="typableCards" :project-name="lesson?.title || ''" :lang="flashcardLanguage"
+        @exit="showListeningGame = false" />
+    </div>
+  </Teleport>
+
+  <Teleport to="body">
+    <div v-if="showMemoryGame" class="fixed inset-0 z-50 overflow-y-auto">
+      <FlashcardMemoryPairsGame :cards="matchingPairs" :project-name="lesson?.title || ''" @exit="showMemoryGame = false" />
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
@@ -1119,6 +1182,12 @@ import { useStudyStore } from '~/composables/useStudyStore'
 import { useLmsStudent } from '~/composables/useLmsStudent'
 import { useOfflineLesson, withTimeout } from '~/composables/useOfflineLesson'
 import { useAppLocale } from '~/composables/useAppLocale'
+import FlashcardQuizGame from '~/components/FlashcardQuizGame.vue'
+import FlashcardMatchingGame from '~/components/FlashcardMatchingGame.vue'
+import FlashcardTypingGame from '~/components/FlashcardTypingGame.vue'
+import FlashcardTrueFalseGame from '~/components/FlashcardTrueFalseGame.vue'
+import FlashcardListeningGame from '~/components/FlashcardListeningGame.vue'
+import FlashcardMemoryPairsGame from '~/components/FlashcardMemoryPairsGame.vue'
 
 const store = useStudyStore()
 const { validateSession } = useLmsStudent()
@@ -1178,6 +1247,16 @@ let autoPlayTimer = null
 const isSpeaking = ref(false)
 let fcCurrentAudio = null
 const currentCard = computed(() => studyCards.value[currentCardIndex.value] ?? null)
+
+// Flashcard practice games — each runs in place, fullscreen over this lesson
+const showQuizGame = ref(false)
+const showMatchingGame = ref(false)
+const showTypingGame = ref(false)
+const showTrueFalseGame = ref(false)
+const showListeningGame = ref(false)
+const showMemoryGame = ref(false)
+/** Built once per run so a replay inside the game reshuffles the same question set. */
+const fcQuizQuestions = ref([])
 
 const isExamLesson = computed(() => lesson.value?.metadata?.lesson_type === 'exam')
 const isFlashcardLesson = computed(() => lesson.value?.metadata?.lesson_type === 'flashcard')
@@ -1555,6 +1634,164 @@ const fcResetAutoPlayProgress = () => {
 
 const toggleAutoPlay = () => { if (isAutoPlaying.value) fcStopAutoPlay(); else fcStartAutoPlay() }
 
+// ── Flashcard practice games ──
+
+// A card needs a meaning to match against, and a term or media to be recognised by
+const matchingPairs = computed(() =>
+  flashcards.value
+    .map((card, idx) => ({
+      id: idx,
+      term: String(card?.term ?? '').trim(),
+      definition: String(card?.definition ?? '').trim(),
+      media: card?.media?.url ? card.media : null,
+    }))
+    .filter((card) => card.definition && (card.term || card.media))
+)
+
+// Typing and listening need a term to spell or say, so an image-only card can't take part
+// in them the way it can in the games that only have to show the prompt
+const typableCards = computed(() =>
+  flashcards.value
+    .map((card, idx) => ({
+      id: idx,
+      term: String(card?.term ?? '').trim(),
+      definition: String(card?.definition ?? '').trim(),
+      media: card?.media?.url ? card.media : null,
+      // The lesson may ship a recorded clip per card — the listening game prefers it
+      voiceUrl: card?.termVoice?.url || null,
+    }))
+    .filter((card) => card.term && card.definition)
+)
+
+/**
+ * Turns the set into 4-choice (or 2-choice) questions: the term asks, the meanings answer.
+ * Only the definition is required — a card may have an empty term and use its media as
+ * the prompt instead. Blank definitions are dropped, otherwise they become empty buttons.
+ */
+const fcBuildQuizQuestions = () => {
+  const usable = flashcards.value.filter((card) => String(card?.definition ?? '').trim())
+  if (usable.length < 2) return []
+
+  const pick = (currentIdx) => {
+    const correct = usable[currentIdx].definition
+    // Deduplicate so two cards sharing a definition can't produce identical buttons,
+    // and never offer the correct answer as a wrong answer
+    const others = Array.from(new Set(usable.filter((_, i) => i !== currentIdx).map((c) => c.definition)))
+      .filter((definition) => definition !== correct)
+    const shuffled = [...others]
+    fcShuffle(shuffled)
+    return shuffled.slice(0, 3)
+  }
+
+  const questions = usable.map((card, idx) => {
+    const others = pick(idx)
+    return {
+      // Small sets (or sets full of duplicate definitions) can't fill 4 options,
+      // so fall back to a 2-choice question instead of a broken 4-choice one
+      questionType: others.length >= 2 ? '4-choices' : '2-choices',
+      question: card.term,
+      answer: card.definition,
+      otherAnswer1: others[0] || '',
+      otherAnswer2: others[1] || '',
+      otherAnswer3: others[2] || '',
+      // Flashcards store media as `media`; game screens read `selectedMedia`
+      selectedMedia: card.media || null,
+    }
+  })
+
+  fcShuffle(questions)
+  return questions
+}
+
+const startQuizPractice = () => {
+  const questions = fcBuildQuizQuestions()
+  if (questions.length === 0) return
+  fcQuizQuestions.value = questions
+  showQuizGame.value = true
+}
+
+const NEEDS_TWO_CARDS = 'Cần ít nhất 2 thẻ có nội dung để chơi!'
+const NEEDS_TWO_TERMS = 'Cần ít nhất 2 thẻ có cả từ và nghĩa để chơi!'
+const NEEDS_ONE_TERM = 'Cần ít nhất 1 thẻ có cả từ và nghĩa để chơi!'
+
+/**
+ * The practice games offered for this lesson. `enabled` is false when the set can't fill
+ * the game — the card explains why rather than failing on tap.
+ */
+const studyGames = computed(() => [
+  {
+    key: 'quiz',
+    icon: '✅',
+    tint: 'from-indigo-100 to-purple-100',
+    name: 'Luyện trắc nghiệm',
+    description: 'Chọn nghĩa đúng trong 4 phương án',
+    enabled: matchingPairs.value.length >= 2,
+    requirement: NEEDS_TWO_CARDS,
+    start: startQuizPractice,
+  },
+  {
+    key: 'matching',
+    icon: '🧩',
+    tint: 'from-pink-100 to-rose-100',
+    name: 'Luyện matching',
+    description: 'Ghép từ với nghĩa của nó, ghép đúng là biến mất',
+    enabled: matchingPairs.value.length >= 2,
+    requirement: NEEDS_TWO_CARDS,
+    start: () => { showMatchingGame.value = true },
+  },
+  {
+    key: 'typing',
+    icon: '⌨️',
+    tint: 'from-sky-100 to-indigo-100',
+    name: 'Điền từ',
+    description: 'Xem nghĩa rồi tự gõ lại từ, có gợi ý khi bí',
+    enabled: typableCards.value.length >= 1,
+    requirement: NEEDS_ONE_TERM,
+    start: () => { showTypingGame.value = true },
+  },
+  {
+    key: 'trueFalse',
+    icon: '⚡',
+    tint: 'from-amber-100 to-orange-100',
+    name: 'Đúng hay Sai',
+    description: 'Cặp thẻ - nghĩa hiện ra có khớp không? Trả lời thật nhanh',
+    enabled: matchingPairs.value.length >= 2,
+    requirement: NEEDS_TWO_CARDS,
+    start: () => { showTrueFalseGame.value = true },
+  },
+  {
+    key: 'listening',
+    icon: '👂',
+    tint: 'from-violet-100 to-fuchsia-100',
+    name: 'Nghe và chọn',
+    description: 'Nghe phát âm của từ rồi chọn nghĩa đúng',
+    enabled: typableCards.value.length >= 2,
+    requirement: NEEDS_TWO_TERMS,
+    start: () => { showListeningGame.value = true },
+  },
+  {
+    key: 'memory',
+    icon: '🧠',
+    tint: 'from-emerald-100 to-teal-100',
+    name: 'Lật thẻ tìm cặp',
+    description: 'Thẻ úp xuống, lật hai thẻ một lần để tìm đúng cặp',
+    enabled: matchingPairs.value.length >= 2,
+    requirement: NEEDS_TWO_CARDS,
+    start: () => { showMemoryGame.value = true },
+  },
+])
+
+const anyGameOpen = computed(() =>
+  showQuizGame.value || showMatchingGame.value || showTypingGame.value ||
+  showTrueFalseGame.value || showListeningGame.value || showMemoryGame.value
+)
+
+// A game overlay covers the whole screen — the lesson behind it must not scroll along
+watch([isStudyMode, anyGameOpen], ([study, game]) => {
+  if (typeof document === 'undefined') return
+  document.body.classList.toggle('hs-lock-scroll', study || game)
+})
+
 const handleFcKeydown = (e) => {
   if (!isStudyMode.value) return
   if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard() }
@@ -1572,6 +1809,7 @@ onBeforeUnmount(() => {
   if (autoPlayTimer) clearTimeout(autoPlayTimer)
   window.speechSynthesis?.cancel()
   if (fcCurrentAudio) { fcCurrentAudio.pause(); fcCurrentAudio = null }
+  document.body.classList.remove('hs-lock-scroll')
 })
 
 const currentIndex = computed(() => allLessons.value.findIndex(l => l.slug === route.params.lessonSlug))
@@ -1635,4 +1873,11 @@ const markComplete = async () => {
 .fc-front, .fc-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .fc-back { transform: rotateY(180deg); }
 .fc-flipped { transform: rotateY(180deg); }
+</style>
+
+<!-- Global: on only while a fullscreen study/game overlay is open (body class toggled in script) -->
+<style>
+body.hs-lock-scroll {
+  overflow: hidden;
+}
 </style>
